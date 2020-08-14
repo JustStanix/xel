@@ -1,9 +1,8 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
-import {isValidColorString} from "../utils/color.js";
+import { html } from "../utils/element.js";
+import { isValidColorString } from "../utils/color.js";
 
 let $oldTabIndex = Symbol();
 
@@ -113,7 +112,15 @@ let shadowTemplate = html`
 //   textinputmodeend
 export class XInputElement extends HTMLElement {
   static get observedAttributes() {
-    return ["type", "value", "spellcheck", "maxlength", "readonly", "disabled", "validation"];
+    return [
+      "type",
+      "value",
+      "spellcheck",
+      "maxlength",
+      "readonly",
+      "disabled",
+      "validation",
+    ];
   }
 
   // @type
@@ -144,15 +151,13 @@ export class XInputElement extends HTMLElement {
         this["#input"].selectionStart = 0;
         this["#input"].selectionEnd = this["#input"].value.length;
         document.execCommand("insertText", false, value);
-      }
-      else {
+      } else {
         this["#input"].value = value;
       }
 
       if (this.validation === "instant") {
         this.validate();
-      }
-      else if (this.validation === "auto" || this.validation === "manual") {
+      } else if (this.validation === "auto" || this.validation === "manual") {
         if (this.error !== null) {
           this.validate();
         }
@@ -171,7 +176,9 @@ export class XInputElement extends HTMLElement {
     return this.hasAttribute("spellcheck");
   }
   set spellcheck(spellcheck) {
-    spellcheck ? this.setAttribute("spellcheck", "") : this.removeAttribute("spellcheck");
+    spellcheck
+      ? this.setAttribute("spellcheck", "")
+      : this.removeAttribute("spellcheck");
   }
 
   // @type
@@ -180,7 +187,9 @@ export class XInputElement extends HTMLElement {
   //   0
   // @attribute
   get minLength() {
-    return this.hasAttribute("minlength") ? parseInt(this.getAttribute("minlength")) : 0;
+    return this.hasAttribute("minlength")
+      ? parseInt(this.getAttribute("minlength"))
+      : 0;
   }
   set minLength(minLength) {
     this.setAttribute("minlength", minLength);
@@ -192,7 +201,9 @@ export class XInputElement extends HTMLElement {
   //   0
   // @attribute
   get maxLength() {
-    return this.hasAttribute("maxlength") ? parseInt(this.getAttribute("maxlength")) : Infinity;
+    return this.hasAttribute("maxlength")
+      ? parseInt(this.getAttribute("maxlength"))
+      : Infinity;
   }
   set maxLength(maxLength) {
     this.setAttribute("maxlength", maxLength);
@@ -207,7 +218,9 @@ export class XInputElement extends HTMLElement {
     return this.hasAttribute("required");
   }
   set required(required) {
-    required ? this.setAttribute("required", "") : this.removeAttribute("required");
+    required
+      ? this.setAttribute("required", "")
+      : this.removeAttribute("required");
   }
 
   // @type
@@ -219,7 +232,9 @@ export class XInputElement extends HTMLElement {
     return this.hasAttribute("readonly");
   }
   set readOnly(readOnly) {
-    readOnly === true ? this.setAttribute("readonly", readOnly) : this.removeAttribute("readonly");
+    readOnly === true
+      ? this.setAttribute("readonly", readOnly)
+      : this.removeAttribute("readonly");
   }
 
   // @info
@@ -245,7 +260,9 @@ export class XInputElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   // @info
@@ -257,7 +274,9 @@ export class XInputElement extends HTMLElement {
   // @default
   //   "auto"
   get validation() {
-    return this.hasAttribute("validation") ? this.getAttribute("validation") : "auto";
+    return this.hasAttribute("validation")
+      ? this.getAttribute("validation")
+      : "auto";
   }
   set validation(validation) {
     this.setAttribute("validation", validation);
@@ -272,7 +291,9 @@ export class XInputElement extends HTMLElement {
     return this.getAttribute("error");
   }
   set error(error) {
-    error === null ? this.removeAttribute("error") : this.setAttribute("error", error);
+    error === null
+      ? this.removeAttribute("error")
+      : this.setAttribute("error", error);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +301,10 @@ export class XInputElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
+    this._shadowRoot = this.attachShadow({
+      mide: "open",
+      delegatesFocus: true,
+    });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -291,9 +315,15 @@ export class XInputElement extends HTMLElement {
     this.addEventListener("focusout", (event) => this._onFocusOut(event));
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
 
-    this["#input"].addEventListener("change", (event) => this._onInputChange(event));
-    this["#input"].addEventListener("input", (event) => this._onInputInput(event));
-    this["#input"].addEventListener("search", (event) => this._onInputSearch(event));
+    this["#input"].addEventListener("change", (event) =>
+      this._onInputChange(event)
+    );
+    this["#input"].addEventListener("input", (event) =>
+      this._onInputInput(event)
+    );
+    this["#input"].addEventListener("search", (event) =>
+      this._onInputSearch(event)
+    );
   }
 
   connectedCallback() {
@@ -302,8 +332,7 @@ export class XInputElement extends HTMLElement {
 
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -313,23 +342,17 @@ export class XInputElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === "type") {
       this._onTypeAttributeChange();
-    }
-    else if (name === "value") {
+    } else if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "spellcheck") {
+    } else if (name === "spellcheck") {
       this._onSpellcheckAttributeChange();
-    }
-    else if (name === "maxlength") {
+    } else if (name === "maxlength") {
       this._onMaxLengthAttributeChange();
-    }
-    else if (name === "readonly") {
+    } else if (name === "readonly") {
       this._onReadOnlyAttributeChnage();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
-    }
-    else if (name === "validation") {
+    } else if (name === "validation") {
       this._onValidationAttributeChnage();
     }
   }
@@ -341,23 +364,23 @@ export class XInputElement extends HTMLElement {
   validate() {
     if (this.value.length < this.minLength) {
       this.error = "Entered text is too short";
-    }
-    else if (this.value.length > this.maxLength) {
+    } else if (this.value.length > this.maxLength) {
       this.error = "Entered text is too long";
-    }
-    else if (this.required && this.value.length === 0) {
+    } else if (this.required && this.value.length === 0) {
       this.error = "This field is required";
-    }
-    else if (this.type === "email" && this["#input"].validity.valid === false) {
+    } else if (
+      this.type === "email" &&
+      this["#input"].validity.valid === false
+    ) {
       this.error = "Invalid e-mail address";
-    }
-    else if (this.type === "url" && this["#input"].validity.valid === false) {
+    } else if (this.type === "url" && this["#input"].validity.valid === false) {
       this.error = "Invalid URL";
-    }
-    else if (this.type === "color" && isValidColorString(this["#input"].value) === false) {
+    } else if (
+      this.type === "color" &&
+      isValidColorString(this["#input"].value) === false
+    ) {
       this.error = "Invalid color";
-    }
-    else {
+    } else {
       this.error = null;
     }
   }
@@ -376,8 +399,7 @@ export class XInputElement extends HTMLElement {
   _updateEmptyState() {
     if (this.value.length === 0) {
       this.setAttribute("empty", "");
-    }
-    else {
+    } else {
       this.removeAttribute("empty");
     }
   }
@@ -388,12 +410,11 @@ export class XInputElement extends HTMLElement {
     this.setAttribute("aria-readonly", this.readOnly);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -405,8 +426,7 @@ export class XInputElement extends HTMLElement {
   _onTypeAttributeChange() {
     if (this.type === "color") {
       this["#input"].type = "text";
-    }
-    else {
+    } else {
       this["#input"].type = this.type;
     }
   }
@@ -440,8 +460,7 @@ export class XInputElement extends HTMLElement {
   _onValidationAttributeChnage() {
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -449,11 +468,15 @@ export class XInputElement extends HTMLElement {
   }
 
   _onFocusIn() {
-    this.dispatchEvent(new CustomEvent("textinputmodestart", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodestart", { bubbles: true, composed: true })
+    );
   }
 
   _onFocusOut() {
-    this.dispatchEvent(new CustomEvent("textinputmodeend", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodeend", { bubbles: true, composed: true })
+    );
 
     if (this.validation === "auto") {
       this.validate();
@@ -466,8 +489,7 @@ export class XInputElement extends HTMLElement {
 
       if (this.validation === "instant") {
         this.validate();
-      }
-      else if (this.validation === "auto" || this.validation === "manual") {
+      } else if (this.validation === "auto" || this.validation === "manual") {
         if (this.error !== null) {
           this.validate();
         }
@@ -478,8 +500,7 @@ export class XInputElement extends HTMLElement {
   _onInputInput(event) {
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -487,17 +508,17 @@ export class XInputElement extends HTMLElement {
 
     event.stopPropagation();
     this._updateEmptyState();
-    this.dispatchEvent(new CustomEvent("input", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("input", { bubbles: true }));
   }
 
   _onInputChange() {
     if (this.type !== "search") {
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
     }
   }
 
   _onInputSearch() {
-    this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
   }
 }
 

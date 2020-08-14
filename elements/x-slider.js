@@ -1,4 +1,3 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 // @doc
@@ -8,12 +7,13 @@
 //   HTML - http://thenewcode.com/757/Playing-With-The-HTML5-range-Slider-Input
 //   ARIA - http://w3c.github.io/aria-practices/#slider, http://w3c.github.io/aria-practices/#slidertwothumb
 
-import {html, closest} from "../utils/element.js";
-import {normalize, round, getPrecision} from "../utils/math.js";
-import {throttle} from "../utils/time.js";
+import { html, closest } from "../utils/element.js";
+import { normalize, round, getPrecision } from "../utils/math.js";
+import { throttle } from "../utils/time.js";
 
-let getClosestMultiple = (number, step) => round(round(number / step) * step, getPrecision(step));
-let $oldTabIndex = Symbol()
+let getClosestMultiple = (number, step) =>
+  round(round(number / step) * step, getPrecision(step));
+let $oldTabIndex = Symbol();
 
 let shadowTemplate = html`
   <template>
@@ -30,7 +30,9 @@ let shadowTemplate = html`
         --focus-ring-transition-duration: 0.15s;
         --thumb-width: 20px;
         --thumb-height: 20px;
-        --thumb-d: path("M 50 50 m -50 0 a 50 50 0 1 0 100 0 a 50 50 0 1 0 -100 0");
+        --thumb-d: path(
+          "M 50 50 m -50 0 a 50 50 0 1 0 100 0 a 50 50 0 1 0 -100 0"
+        );
         --thumb-transform: none;
         --thumb-color: gray;
         --thumb-border-width: 1px;
@@ -59,7 +61,7 @@ let shadowTemplate = html`
         position: absolute;
         width: 100%;
         height: var(--track-height);
-        top: calc((var(--thumb-height) / 2) - var(--track-height)/2);
+        top: calc((var(--thumb-height) / 2) - var(--track-height) / 2);
       }
 
       #tracks #normal-track {
@@ -116,7 +118,8 @@ let shadowTemplate = html`
         stroke-width: 0;
         opacity: var(--focus-ring-opacity);
         vector-effect: non-scaling-stroke;
-        transition: stroke-width var(--focus-ring-transition-duration) cubic-bezier(0.4, 0, 0.2, 1);
+        transition: stroke-width var(--focus-ring-transition-duration)
+          cubic-bezier(0.4, 0, 0.2, 1);
       }
       :host(:focus) #thumbs .thumb .focus-ring {
         stroke-width: var(--focus-ring-width);
@@ -171,7 +174,13 @@ let shadowTemplate = html`
     </div>
 
     <div id="thumbs">
-      <svg id="start-thumb" class="thumb" viewBox="0 0 100 100" preserveAspectRatio="none" style="left: 0%;">
+      <svg
+        id="start-thumb"
+        class="thumb"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style="left: 0%;"
+      >
         <path class="focus-ring"></path>
         <path class="shape"></path>
       </svg>
@@ -212,7 +221,9 @@ export class XSliderElement extends HTMLElement {
   //   100
   // @attribute
   get max() {
-    return this.hasAttribute("max") ? parseFloat(this.getAttribute("max")) : 100;
+    return this.hasAttribute("max")
+      ? parseFloat(this.getAttribute("max"))
+      : 100;
   }
   set max(max) {
     this.setAttribute("max", max);
@@ -224,9 +235,10 @@ export class XSliderElement extends HTMLElement {
   get value() {
     if (this.hasAttribute("value")) {
       return parseFloat(this.getAttribute("value"));
-    }
-    else {
-      return this.max >= this.min ? this.min + (this.max - this.min) / 2 : this.min;
+    } else {
+      return this.max >= this.min
+        ? this.min + (this.max - this.min) / 2
+        : this.min;
     }
   }
   set value(value) {
@@ -240,7 +252,9 @@ export class XSliderElement extends HTMLElement {
   //   1
   // @attribute
   get step() {
-    return this.hasAttribute("step") ? parseFloat(this.getAttribute("step")) : 1;
+    return this.hasAttribute("step")
+      ? parseFloat(this.getAttribute("step"))
+      : 1;
   }
   set step(step) {
     this.setAttribute("step", step);
@@ -257,7 +271,9 @@ export class XSliderElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +281,7 @@ export class XSliderElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     this._observer = new MutationObserver((args) => this._onMutation(args));
@@ -275,7 +291,9 @@ export class XSliderElement extends HTMLElement {
       this["#" + element.id] = element;
     }
 
-    this._shadowRoot.addEventListener("pointerdown", (event) => this._onShadowRootPointerDown(event));
+    this._shadowRoot.addEventListener("pointerdown", (event) =>
+      this._onShadowRootPointerDown(event)
+    );
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
   }
@@ -283,14 +301,11 @@ export class XSliderElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "value") {
+    } else if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "min") {
+    } else if (name === "min") {
       this._onMinAttributeChange();
-    }
-    else if (name === "max") {
+    } else if (name === "max") {
       this._onMaxAttributeChange();
     }
   }
@@ -303,7 +318,7 @@ export class XSliderElement extends HTMLElement {
       subtree: true,
       attributes: true,
       attributeFilter: ["value"],
-      characterData: false
+      characterData: false,
     });
 
     this._updateTracks();
@@ -319,21 +334,23 @@ export class XSliderElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   _updateTracks() {
-    let left = (((this.value - this.min) / (this.max - this.min)) * 100);
-    let originLeft = (((this.min > 0 ? this.min : 0) - this.min) / (this.max - this.min)) * 100;
+    let left = ((this.value - this.min) / (this.max - this.min)) * 100;
+    let originLeft =
+      (((this.min > 0 ? this.min : 0) - this.min) / (this.max - this.min)) *
+      100;
 
     if (left >= originLeft) {
       this["#tint-track"].style.left = `${originLeft}%`;
-      this["#tint-track"].style.width = (left - originLeft) + "%";
-    }
-    else {
+      this["#tint-track"].style.width = left - originLeft + "%";
+    } else {
       this["#tint-track"].style.left = `${left}%`;
       this["#tint-track"].style.width = `${originLeft - left}%`;
     }
   }
 
   _updateThumbs(animate) {
-    this["#start-thumb"].style.left = (((this.value - this.min) / (this.max - this.min)) * 100) + "%";
+    this["#start-thumb"].style.left =
+      ((this.value - this.min) / (this.max - this.min)) * 100 + "%";
   }
 
   async _updateTicks() {
@@ -342,8 +359,12 @@ export class XSliderElement extends HTMLElement {
     this["#ticks"].innerHTML = "";
 
     for (let label of this.querySelectorAll(":scope > x-label")) {
-      label.style.left = (((label.value - this.min) / (this.max - this.min)) * 100) + "%";
-      this["#ticks"].insertAdjacentHTML("beforeend", `<div class="tick" style="left: ${label.style.left}"></div>`);
+      label.style.left =
+        ((label.value - this.min) / (this.max - this.min)) * 100 + "%";
+      this["#ticks"].insertAdjacentHTML(
+        "beforeend",
+        `<div class="tick" style="left: ${label.style.left}"></div>`
+      );
     }
   }
 
@@ -351,12 +372,11 @@ export class XSliderElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -386,8 +406,7 @@ export class XSliderElement extends HTMLElement {
     for (let record of records) {
       if (record.type === "attributes" && record.target === this) {
         return;
-      }
-      else {
+      } else {
         this._updateTicks500ms();
       }
     }
@@ -407,7 +426,10 @@ export class XSliderElement extends HTMLElement {
   }
 
   _onShadowRootPointerDown(pointerDownEvent) {
-    if (pointerDownEvent.buttons !== 1 || pointerDownEvent.isPrimary === false) {
+    if (
+      pointerDownEvent.buttons !== 1 ||
+      pointerDownEvent.isPrimary === false
+    ) {
       return;
     }
 
@@ -420,10 +442,11 @@ export class XSliderElement extends HTMLElement {
     this.setPointerCapture(pointerDownEvent.pointerId);
 
     let updateValue = (clientX, animate) => {
-      let x = clientX - containerBounds.x - thumbBounds.width/2;
+      let x = clientX - containerBounds.x - thumbBounds.width / 2;
       x = normalize(x, 0, containerBounds.width);
 
-      let value = (x / containerBounds.width) * (this.max - this.min) + this.min;
+      let value =
+        (x / containerBounds.width) * (this.max - this.min) + this.min;
       value = getClosestMultiple(value, this.step);
 
       if (this.value !== value) {
@@ -431,10 +454,10 @@ export class XSliderElement extends HTMLElement {
 
         if (changeStarted === false) {
           changeStarted = true;
-          this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+          this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
         }
 
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
@@ -442,60 +465,66 @@ export class XSliderElement extends HTMLElement {
       updateValue(pointerDownEvent.clientX, true);
     }
 
-    this.addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      if (pointerMoveEvent.isPrimary) {
-        updateValue(pointerMoveEvent.clientX, false);
-      }
-    });
+    this.addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        if (pointerMoveEvent.isPrimary) {
+          updateValue(pointerMoveEvent.clientX, false);
+        }
+      })
+    );
 
-    this.addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this.removeEventListener("pointermove", pointerMoveListener);
-      this.removeEventListener("lostpointercapture", lostPointerCaptureListener);
+    this.addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this.removeEventListener("pointermove", pointerMoveListener);
+        this.removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
 
-      if (changeStarted) {
-        this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
-      }
-    });
+        if (changeStarted) {
+          this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
+        }
+      })
+    );
   }
 
   _onKeyDown(event) {
     if (event.code === "ArrowLeft" || event.code === "ArrowDown") {
       event.preventDefault();
-      this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
-      let oldValue = this.value
+      let oldValue = this.value;
 
       if (event.shiftKey) {
         this.value -= this.step * 10;
-      }
-      else {
+      } else {
         this.value -= this.step;
       }
 
       if (oldValue !== this.value) {
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
 
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
-    }
-    else if (event.code === "ArrowRight" || event.code === "ArrowUp") {
+      this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
+    } else if (event.code === "ArrowRight" || event.code === "ArrowUp") {
       event.preventDefault();
-      this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
-      let oldValue = this.value
+      let oldValue = this.value;
 
       if (event.shiftKey) {
         this.value += this.step * 10;
-      }
-      else {
+      } else {
         this.value += this.step;
       }
 
       if (oldValue !== this.value) {
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
 
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
     }
   }
 }

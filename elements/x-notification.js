@@ -1,12 +1,11 @@
-
 // @doc
 //   https://material.io/guidelines/components/snackbars-toasts.html#
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
-import {rectContainsPoint} from "../utils/math.js";
-import {getTimeStamp} from "../utils/time.js";
+import { html } from "../utils/element.js";
+import { rectContainsPoint } from "../utils/math.js";
+import { getTimeStamp } from "../utils/time.js";
 
 let shadowTemplate = html`
   <template>
@@ -54,7 +53,9 @@ export class XNotificationElement extends HTMLElement {
     return this.hasAttribute("opened");
   }
   set opened(opened) {
-    opened === true ? this.setAttribute("opened", "") : this.removeAttribute("opened");
+    opened === true
+      ? this.setAttribute("opened", "")
+      : this.removeAttribute("opened");
     this._time = 0;
   }
 
@@ -66,7 +67,9 @@ export class XNotificationElement extends HTMLElement {
   // @default
   //   0
   get timeout() {
-    return this.hasAttribute("timeout") ? parseFloat(this.getAttribute("timeout")) : 0;
+    return this.hasAttribute("timeout")
+      ? parseFloat(this.getAttribute("timeout"))
+      : 0;
   }
   set timeout(timeout) {
     this.setAttribute("timeout", timeout);
@@ -79,7 +82,7 @@ export class XNotificationElement extends HTMLElement {
 
     this._time = 0;
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -94,8 +97,7 @@ export class XNotificationElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "opened") {
+    } else if (name === "opened") {
       this.opened ? this._onOpen() : this._onClose();
     }
   }
@@ -105,11 +107,11 @@ export class XNotificationElement extends HTMLElement {
   _onOpen() {
     // Animate in
     if (this.isConnected) {
-      let fromBottom = (0 - this.getBoundingClientRect().height - 10) + "px";
+      let fromBottom = 0 - this.getBoundingClientRect().height - 10 + "px";
       let toBottom = getComputedStyle(this).bottom;
 
       let inAnimation = this.animate(
-        { bottom: [fromBottom, toBottom]},
+        { bottom: [fromBottom, toBottom] },
         { duration: 300, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
       );
     }
@@ -128,17 +130,24 @@ export class XNotificationElement extends HTMLElement {
 
       let openTimeStamp = getTimeStamp();
 
-      window.addEventListener("pointerdown", this._windowPointerDownListener = (event) => {
-        let pointerDownTimeStamp = getTimeStamp();
-        let bounds = this.getBoundingClientRect();
+      window.addEventListener(
+        "pointerdown",
+        (this._windowPointerDownListener = (event) => {
+          let pointerDownTimeStamp = getTimeStamp();
+          let bounds = this.getBoundingClientRect();
 
-        if (
-          pointerDownTimeStamp - openTimeStamp > 10 &&
-          rectContainsPoint(bounds, new DOMPoint(event.clientX, event.clientY)) === false
-        ) {
-          this.opened = false;
-        }
-      }, true);
+          if (
+            pointerDownTimeStamp - openTimeStamp > 10 &&
+            rectContainsPoint(
+              bounds,
+              new DOMPoint(event.clientX, event.clientY)
+            ) === false
+          ) {
+            this.opened = false;
+          }
+        }),
+        true
+      );
     }
   }
 
@@ -149,10 +158,10 @@ export class XNotificationElement extends HTMLElement {
     if (this.isConnected) {
       this.setAttribute("animating", "");
       let fromBottom = getComputedStyle(this).bottom;
-      let toBottom = (0 - this.getBoundingClientRect().height - 10) + "px";
+      let toBottom = 0 - this.getBoundingClientRect().height - 10 + "px";
 
       let inAnimation = this.animate(
-        { bottom: [fromBottom, toBottom]},
+        { bottom: [fromBottom, toBottom] },
         { duration: 300, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
       );
 
@@ -160,7 +169,11 @@ export class XNotificationElement extends HTMLElement {
       this.removeAttribute("animating");
     }
 
-    window.removeEventListener("pointerdown", this._windowPointerDownListener, true);
+    window.removeEventListener(
+      "pointerdown",
+      this._windowPointerDownListener,
+      true
+    );
   }
 }
 

@@ -1,9 +1,8 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
-import {normalize} from "../utils/math.js";
+import { html } from "../utils/element.js";
+import { normalize } from "../utils/math.js";
 
 let shadowTemplate = html`
   <template>
@@ -18,8 +17,8 @@ let shadowTemplate = html`
         overflow: hidden;
         background: #acece6;
         cursor: default;
-        --bar-background: #3B99FB;
-        --bar-box-shadow: 0px 0px 0px 1px #3385DB;
+        --bar-background: #3b99fb;
+        --bar-box-shadow: 0px 0px 0px 1px #3385db;
       }
       :host([hidden]) {
         display: none;
@@ -89,10 +88,14 @@ export class XProgressbarElement extends HTMLElement {
   //   null
   // @attribute
   get value() {
-    return this.hasAttribute("value") ? parseFloat(this.getAttribute("value")) : null;
+    return this.hasAttribute("value")
+      ? parseFloat(this.getAttribute("value"))
+      : null;
   }
   set value(value) {
-    value === null ? this.removeAttribute("value") : this.setAttribute("value", value);
+    value === null
+      ? this.removeAttribute("value")
+      : this.setAttribute("value", value);
   }
 
   // @type
@@ -118,7 +121,9 @@ export class XProgressbarElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +131,7 @@ export class XProgressbarElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -141,11 +146,9 @@ export class XProgressbarElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "value") {
+    } else if (name === "value") {
       this._update();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._update();
     }
   }
@@ -161,7 +164,8 @@ export class XProgressbarElement extends HTMLElement {
       }
       // Show
       else {
-        this["#determinate-bar"].style.width = ((this.value / this.max) * 100) + "%";
+        this["#determinate-bar"].style.width =
+          (this.value / this.max) * 100 + "%";
       }
     }
 
@@ -185,27 +189,27 @@ export class XProgressbarElement extends HTMLElement {
               [
                 { left: "-35%", right: "100%", offset: 0.0 },
                 { left: "100%", right: "-90%", offset: 0.6 },
-                { left: "100%", right: "-90%", offset: 1.0 }
+                { left: "100%", right: "-90%", offset: 1.0 },
               ],
               {
                 duration: 2000,
                 easing: "ease-in-out",
-                iterations: Infinity
+                iterations: Infinity,
               }
             ),
             this["#secondary-indeterminate-bar"].animate(
               [
                 { left: "-100%", right: "100%", offset: 0.0 },
-                { left:  "110%", right: "-30%", offset: 0.8 },
-                { left:  "110%", right: "-30%", offset: 1.0 }
+                { left: "110%", right: "-30%", offset: 0.8 },
+                { left: "110%", right: "-30%", offset: 1.0 },
               ],
               {
                 duration: 2000,
                 delay: 1000,
                 easing: "ease-in-out",
-                iterations: Infinity
+                iterations: Infinity,
               }
-            )
+            ),
           ];
         }
       }

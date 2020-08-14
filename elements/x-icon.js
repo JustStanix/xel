@@ -1,11 +1,10 @@
-
 // @doc
 //   https://material.google.com/style/icons.html#icons-system-icons
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, svg} from "../utils/element.js";
-import {readFile} from "../utils/file.js";
+import { html, svg } from "../utils/element.js";
+import { readFile } from "../utils/file.js";
 
 let cache = {};
 
@@ -40,7 +39,13 @@ let shadowTemplate = html`
       }
     </style>
 
-    <svg id="svg" preserveAspectRatio="none" viewBox="0 0 100 100" width="0px" height="0px"></svg>
+    <svg
+      id="svg"
+      preserveAspectRatio="none"
+      viewBox="0 0 100 100"
+      width="0px"
+      height="0px"
+    ></svg>
   </template>
 `;
 
@@ -67,18 +72,19 @@ export class XIconElement extends HTMLElement {
   //   null
   // @attribute
   get iconset() {
-    if (this.hasAttribute("iconset") === false || this.getAttribute("iconset").trim() === "") {
+    if (
+      this.hasAttribute("iconset") === false ||
+      this.getAttribute("iconset").trim() === ""
+    ) {
       return null;
-    }
-    else {
+    } else {
       return this.getAttribute("iconset");
     }
   }
   set iconset(iconset) {
     if (iconset === null || iconset.trim() === "") {
       this.removeAttribute("iconset");
-    }
-    else {
+    } else {
       this.setAttribute("iconset", iconset);
     }
   }
@@ -92,7 +98,9 @@ export class XIconElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +108,7 @@ export class XIconElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -111,11 +119,9 @@ export class XIconElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "name") {
+    } else if (name === "name") {
       this._update();
-    }
-    else if (name === "iconset") {
+    } else if (name === "iconset") {
       this._update();
     }
   }
@@ -125,15 +131,13 @@ export class XIconElement extends HTMLElement {
   async _update() {
     if (this.name === "") {
       this["#svg"].innerHTML = "";
-    }
-    else {
+    } else {
       let symbol = await this._getSymbol(this.name, this.iconset);
 
       if (symbol) {
         this["#svg"].setAttribute("viewBox", symbol.getAttribute("viewBox"));
         this["#svg"].innerHTML = symbol.innerHTML;
-      }
-      else {
+      } else {
         this["#svg"].innerHTML = "";
       }
     }
@@ -147,7 +151,9 @@ export class XIconElement extends HTMLElement {
       if (iconsetURL === null) {
         // Development - default iconset must be read from a file
         if (XIconElement.DEFAULT_ICONSET === null) {
-          iconset = await this._getIconset("node_modules/xel/iconsets/default.svg");
+          iconset = await this._getIconset(
+            "node_modules/xel/iconsets/default.svg"
+          );
         }
         // Production - default iconset is embedded into xel.min.js
         else {
@@ -174,20 +180,17 @@ export class XIconElement extends HTMLElement {
       if (cache[iconsetURL]) {
         if (cache[iconsetURL].iconset) {
           resolve(cache[iconsetURL].iconset);
-        }
-        else {
+        } else {
           cache[iconsetURL].callbacks.push(resolve);
         }
-      }
-      else {
-        cache[iconsetURL] = {callbacks: [resolve], iconset: null};
+      } else {
+        cache[iconsetURL] = { callbacks: [resolve], iconset: null };
 
         let iconsetSVG = null;
 
         try {
           iconsetSVG = await readFile(iconsetURL);
-        }
-        catch (error) {
+        } catch (error) {
           iconsetSVG = null;
         }
 

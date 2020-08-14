@@ -1,12 +1,16 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {parseColor, serializeColor, hsvToRgb, getColorWheelImageURL} from "../utils/color.js";
-import {createElement} from "../utils/element.js";
-import {round, normalize, degToRad} from "../utils/math.js";
+import {
+  parseColor,
+  serializeColor,
+  hsvToRgb,
+  getColorWheelImageURL,
+} from "../utils/color.js";
+import { createElement } from "../utils/element.js";
+import { round, normalize, degToRad } from "../utils/math.js";
 
-let {PI, sqrt, atan2, sin, cos, pow} = Math;
+let { PI, sqrt, atan2, sin, cos, pow } = Math;
 let debug = false;
 
 let shadowHTML = `
@@ -189,7 +193,9 @@ export class XWheelColorPickerElement extends HTMLElement {
   //   "hsla(0, 0%, 100%, 1)"
   // @attribute
   get value() {
-    return this.hasAttribute("value") ? this.getAttribute("value") : "hsla(0, 0%, 100%, 1)";
+    return this.hasAttribute("value")
+      ? this.getAttribute("value")
+      : "hsla(0, 0%, 100%, 1)";
   }
   set value(value) {
     this.setAttribute("value", value);
@@ -201,25 +207,31 @@ export class XWheelColorPickerElement extends HTMLElement {
     super();
 
     // Note that HSVA color model is used only internally
-    this._h = 0;   // Hue (0 ~ 360)
-    this._s = 0;   // Saturation (0 ~ 100)
+    this._h = 0; // Hue (0 ~ 360)
+    this._s = 0; // Saturation (0 ~ 100)
     this._v = 100; // Value (0 ~ 100)
-    this._a = 1;   // Alpha (0 ~ 1)
+    this._a = 1; // Alpha (0 ~ 1)
 
     this._isDraggingHuesatMarker = false;
     this._isDraggingValueSliderMarker = false;
     this._isDraggingAlphaSliderMarker = false;
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.innerHTML = shadowHTML;
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
       this["#" + element.id] = element;
     }
 
-    this["#huesat-slider"].addEventListener("pointerdown", (event) => this._onHuesatSliderPointerDown(event));
-    this["#value-slider"].addEventListener("pointerdown", (event) => this._onValueSliderPointerDown(event));
-    this["#alpha-slider"].addEventListener("pointerdown", (event) => this._onAlphaSliderPointerDown(event));
+    this["#huesat-slider"].addEventListener("pointerdown", (event) =>
+      this._onHuesatSliderPointerDown(event)
+    );
+    this["#value-slider"].addEventListener("pointerdown", (event) =>
+      this._onValueSliderPointerDown(event)
+    );
+    this["#alpha-slider"].addEventListener("pointerdown", (event) =>
+      this._onAlphaSliderPointerDown(event)
+    );
   }
 
   async connectedCallback() {
@@ -233,8 +245,7 @@ export class XWheelColorPickerElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "value") {
+    } else if (name === "value") {
       this._onValueAttributeChange();
     }
   }
@@ -255,32 +266,44 @@ export class XWheelColorPickerElement extends HTMLElement {
 
     let wheelSize = 100;
     let angle = degToRad(h);
-    let radius = (s / 100) * wheelSize/2;
-    let centerPoint = {x: wheelSize/2, y: wheelSize/2};
+    let radius = ((s / 100) * wheelSize) / 2;
+    let centerPoint = { x: wheelSize / 2, y: wheelSize / 2 };
 
-    let x = ((wheelSize - (centerPoint.x + (radius * cos(angle)))) / wheelSize) * 100;
-    let y = ((centerPoint.y - (radius * sin(angle))) / wheelSize) * 100;
+    let x =
+      ((wheelSize - (centerPoint.x + radius * cos(angle))) / wheelSize) * 100;
+    let y = ((centerPoint.y - radius * sin(angle)) / wheelSize) * 100;
 
     this["#huesat-marker"].style.left = x + "%";
     this["#huesat-marker"].style.top = y + "%";
   }
 
   _updateValueSliderMarker() {
-    this["#value-slider-marker"].style.left = (100 - normalize(this._v, 0, 100, 2)) + "%";
+    this["#value-slider-marker"].style.left =
+      100 - normalize(this._v, 0, 100, 2) + "%";
   }
 
   _updateValueSliderBackground() {
-    let gradientBackground = "linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1))";
-    let solidBackground = serializeColor([this._h, this._s, 100, 1], "hsva", "hex");
-    this["#value-slider"].style.background = `${gradientBackground}, ${solidBackground}`;
+    let gradientBackground =
+      "linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1))";
+    let solidBackground = serializeColor(
+      [this._h, this._s, 100, 1],
+      "hsva",
+      "hex"
+    );
+    this[
+      "#value-slider"
+    ].style.background = `${gradientBackground}, ${solidBackground}`;
   }
 
   _updateAlphaSliderMarker() {
-    this["#alpha-slider-marker"].style.left = normalize((1 - this._a) * 100, 0, 100, 2) + "%";
+    this["#alpha-slider-marker"].style.left =
+      normalize((1 - this._a) * 100, 0, 100, 2) + "%";
   }
 
   _updateAlphaSliderBackground() {
-    let [r, g, b] = hsvToRgb(this._h, this._s, this._v).map($0 => round($0, 0));
+    let [r, g, b] = hsvToRgb(this._h, this._s, this._v).map(($0) =>
+      round($0, 0)
+    );
 
     this["#alpha-slider-gradient"].style.background = `
       linear-gradient(to right, rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0))
@@ -319,7 +342,7 @@ export class XWheelColorPickerElement extends HTMLElement {
     let wheelBounds = this["#huesat-slider"].getBoundingClientRect();
 
     this._isDraggingHuesatMarker = true;
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     this["#huesat-slider"].style.cursor = "default";
     this["#huesat-slider"].setPointerCapture(pointerDownEvent.pointerId);
@@ -339,10 +362,14 @@ export class XWheelColorPickerElement extends HTMLElement {
       }
 
       this._h = round(((theta + PI) / (PI * 2)) * 360, 3);
-      this._s = round((sqrt(d) / radius) * 100, 3)
+      this._s = round((sqrt(d) / radius) * 100, 3);
 
-      this.value = serializeColor([this._h, this._s, this._v, this._a], "hsva", "hsla");
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+      this.value = serializeColor(
+        [this._h, this._s, this._v, this._a],
+        "hsva",
+        "hsla"
+      );
+      this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
 
       this._updateHuesatMarker();
       this._updateValueSliderBackground();
@@ -351,18 +378,30 @@ export class XWheelColorPickerElement extends HTMLElement {
 
     onPointerMove(pointerDownEvent.clientX, pointerDownEvent.clientY);
 
-    this["#huesat-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX, pointerMoveEvent.clientY);
-    });
+    this["#huesat-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX, pointerMoveEvent.clientY);
+      })
+    );
 
-    this["#huesat-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = (event) => {
-      this["#huesat-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#huesat-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this["#huesat-slider"].style.cursor = null;
+    this["#huesat-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = (event) => {
+        this["#huesat-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#huesat-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this["#huesat-slider"].style.cursor = null;
 
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
-      this._isDraggingHuesatMarker = false;
-    });
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
+        this._isDraggingHuesatMarker = false;
+      })
+    );
   }
 
   _onValueSliderPointerDown(pointerDownEvent) {
@@ -376,7 +415,7 @@ export class XWheelColorPickerElement extends HTMLElement {
     this._isDraggingValueSliderMarker = true;
     this["#value-slider"].style.cursor = "default";
     this["#value-slider"].setPointerCapture(pointerDownEvent.pointerId);
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     let onPointerMove = (clientX) => {
       let v = 100 - ((clientX - trackBounds.x) / trackBounds.width) * 100;
@@ -384,29 +423,45 @@ export class XWheelColorPickerElement extends HTMLElement {
 
       if (v !== this._v) {
         this._v = v;
-        this.value = serializeColor([this._h, this._s, this._v, this._a], "hsva", "hsla");
+        this.value = serializeColor(
+          [this._h, this._s, this._v, this._a],
+          "hsva",
+          "hsla"
+        );
 
         this._updateValueSliderMarker();
         this._updateAlphaSliderBackground();
 
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
     onPointerMove(pointerDownEvent.clientX);
 
-    this["#value-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX);
-    });
+    this["#value-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX);
+      })
+    );
 
-    this["#value-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this["#value-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#value-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this["#value-slider"].style.cursor = null;
+    this["#value-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this["#value-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#value-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this["#value-slider"].style.cursor = null;
 
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
-      this._isDraggingValueSliderMarker = false;
-    });
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
+        this._isDraggingValueSliderMarker = false;
+      })
+    );
   }
 
   _onAlphaSliderPointerDown(pointerDownEvent) {
@@ -420,35 +475,51 @@ export class XWheelColorPickerElement extends HTMLElement {
     this._isDraggingAlphaSliderMarker = true;
     this["#alpha-slider"].style.cursor = "default";
     this["#alpha-slider"].setPointerCapture(pointerDownEvent.pointerId);
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     let onPointerMove = (clientX) => {
-      let a = 1 - ((clientX - trackBounds.x) / trackBounds.width);
+      let a = 1 - (clientX - trackBounds.x) / trackBounds.width;
       a = normalize(a, 0, 1, 2);
 
       if (a !== this._a) {
         this._a = a;
-        this.value = serializeColor([this._h, this._s, this._v, this._a], "hsva", "hsla");
+        this.value = serializeColor(
+          [this._h, this._s, this._v, this._a],
+          "hsva",
+          "hsla"
+        );
         this._updateAlphaSliderMarker();
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
     onPointerMove(pointerDownEvent.clientX);
 
-    this["#alpha-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX);
-    });
+    this["#alpha-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX);
+      })
+    );
 
-    this["#alpha-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this["#alpha-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#alpha-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this["#alpha-slider"].style.cursor = null;
+    this["#alpha-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this["#alpha-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#alpha-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this["#alpha-slider"].style.cursor = null;
 
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
-      this._isDraggingAlphaSliderMarker = false;
-    });
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
+        this._isDraggingAlphaSliderMarker = false;
+      })
+    );
   }
-};
+}
 
 customElements.define("x-wheelcolorpicker", XWheelColorPickerElement);

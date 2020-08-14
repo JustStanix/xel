@@ -1,13 +1,12 @@
-
 // @info
 //   Switch widget.
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, createElement, closest} from "../utils/element.js";
+import { html, createElement, closest } from "../utils/element.js";
 
 let easing = "cubic-bezier(0.4, 0, 0.2, 1)";
-let $oldTabIndex = Symbol()
+let $oldTabIndex = Symbol();
 
 let shadowTemplate = html`
   <template>
@@ -95,7 +94,8 @@ let shadowTemplate = html`
         border: 0px solid var(--focus-ring-color);
         border-radius: 999px;
         opacity: var(--focus-ring-opacity);
-        transition: border-width var(--focus-ring-transition-duration) cubic-bezier(0.4, 0, 0.2, 1);
+        transition: border-width var(--focus-ring-transition-duration)
+          cubic-bezier(0.4, 0, 0.2, 1);
       }
       :host(:focus) #thumb #focus-ring {
         border-width: var(--focus-ring-width);
@@ -145,7 +145,9 @@ export class XSwitchElement extends HTMLElement {
     return this.hasAttribute("toggled");
   }
   set toggled(toggled) {
-    toggled ? this.setAttribute("toggled", "") : this.removeAttribute("toggled");
+    toggled
+      ? this.setAttribute("toggled", "")
+      : this.removeAttribute("toggled");
   }
 
   // @type
@@ -169,7 +171,9 @@ export class XSwitchElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +181,7 @@ export class XSwitchElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -196,8 +200,7 @@ export class XSwitchElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === "toggled") {
       this._onToggledAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
     }
   }
@@ -210,12 +213,11 @@ export class XSwitchElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -251,7 +253,9 @@ export class XSwitchElement extends HTMLElement {
 
     // Ripple
     {
-      let rippleType = getComputedStyle(this).getPropertyValue("--ripple-type").trim();
+      let rippleType = getComputedStyle(this)
+        .getPropertyValue("--ripple-type")
+        .trim();
 
       if (rippleType === "unbounded") {
         let ripple = createElement("div");
@@ -259,24 +263,33 @@ export class XSwitchElement extends HTMLElement {
         this["#ripples"].append(ripple);
 
         let transformAnimation = ripple.animate(
-          { transform: ["translate(-50%, -50%) scale(0)", "translate(-50%, -50%) scale(1)"] },
+          {
+            transform: [
+              "translate(-50%, -50%) scale(0)",
+              "translate(-50%, -50%) scale(1)",
+            ],
+          },
           { duration: 200, easing }
         );
 
         this.setPointerCapture(event.pointerId);
 
-        this.addEventListener("lostpointercapture", async () => {
-          await transformAnimation.finished;
+        this.addEventListener(
+          "lostpointercapture",
+          async () => {
+            await transformAnimation.finished;
 
-          let opacityAnimation = ripple.animate(
-            { opacity: [getComputedStyle(ripple).opacity, "0"] },
-            { duration: 200, easing }
-          );
+            let opacityAnimation = ripple.animate(
+              { opacity: [getComputedStyle(ripple).opacity, "0"] },
+              { duration: 200, easing }
+            );
 
-          await opacityAnimation.finished;
+            await opacityAnimation.finished;
 
-          ripple.remove();
-        }, {once: true});
+            ripple.remove();
+          },
+          { once: true }
+        );
       }
     }
   }
@@ -286,8 +299,7 @@ export class XSwitchElement extends HTMLElement {
     {
       if (this.mixed) {
         this.mixed = false;
-      }
-      else {
+      } else {
         this.toggled = !this.toggled;
       }
 
@@ -296,7 +308,9 @@ export class XSwitchElement extends HTMLElement {
 
     // Ripple
     if (event.isTrusted === false) {
-      let rippleType = getComputedStyle(this).getPropertyValue("--ripple-type").trim();
+      let rippleType = getComputedStyle(this)
+        .getPropertyValue("--ripple-type")
+        .trim();
 
       if (rippleType === "unbounded") {
         let ripple = createElement("div");
@@ -304,7 +318,12 @@ export class XSwitchElement extends HTMLElement {
         this["#ripples"].append(ripple);
 
         await ripple.animate(
-          { transform: ["translate(-50%, -50%) scale(0)", "translate(-50%, -50%) scale(1)"] },
+          {
+            transform: [
+              "translate(-50%, -50%) scale(0)",
+              "translate(-50%, -50%) scale(1)",
+            ],
+          },
           { duration: 200, easing }
         ).finished;
 
@@ -324,6 +343,6 @@ export class XSwitchElement extends HTMLElement {
       this.click();
     }
   }
-};
+}
 
 customElements.define("x-switch", XSwitchElement);

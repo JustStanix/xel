@@ -1,9 +1,8 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
-import {sleep} from "../utils/time.js";
+import { html } from "../utils/element.js";
+import { sleep } from "../utils/time.js";
 
 let shadowTemplate = html`
   <template>
@@ -21,10 +20,14 @@ let shadowTemplate = html`
         --pressed-button-background: rgba(0, 0, 0, 0.3);
         --increment-arrow-width: 11px;
         --increment-arrow-height: 11px;
-        --increment-arrow-path-d: path("M 24 69 L 50 43 L 76 69 L 69 76 L 50 58 L 31 76 L 24 69 Z" );
+        --increment-arrow-path-d: path(
+          "M 24 69 L 50 43 L 76 69 L 69 76 L 50 58 L 31 76 L 24 69 Z"
+        );
         --decrement-arrow-width: 11px;
         --decrement-arrow-height: 11px;
-        --decrement-arrow-path-d: path("M 24 32 L 50 58 L 76 32 L 69 25 L 50 44 L 31 25 L 24 32 Z" );
+        --decrement-arrow-path-d: path(
+          "M 24 32 L 50 58 L 76 32 L 69 25 L 50 44 L 31 25 L 24 32 Z"
+        );
       }
       :host(:hover) {
         cursor: default;
@@ -77,13 +80,21 @@ let shadowTemplate = html`
     </style>
 
     <div id="decrement-button" class="button">
-      <svg id="decrement-arrow" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg
+        id="decrement-arrow"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
         <path id="decrement-arrow-path"></path>
       </svg>
     </div>
 
     <div id="increment-button" class="button">
-      <svg id="increment-arrow" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg
+        id="increment-arrow"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
         <path id="increment-arrow-path"></path>
       </svg>
     </div>
@@ -110,26 +121,21 @@ export class XStepperElement extends HTMLElement {
     if (this.hasAttribute("disabled")) {
       if (this.getAttribute("disabled") === "increment") {
         return "increment";
-      }
-      else if (this.getAttribute("disabled") === "decrement") {
+      } else if (this.getAttribute("disabled") === "decrement") {
         return "decrement";
-      }
-      else {
+      } else {
         return true;
       }
-    }
-    else {
+    } else {
       return false;
     }
   }
   set disabled(disabled) {
     if (disabled === true) {
       this.setAttribute("disabled", "");
-    }
-    else if (disabled === false) {
+    } else if (disabled === false) {
       this.removeAttribute("disabled");
-    }
-    else {
+    } else {
       this.setAttribute("disabled", disabled);
     }
   }
@@ -139,14 +145,16 @@ export class XStepperElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
       this["#" + element.id] = element;
     }
 
-    this._shadowRoot.addEventListener("pointerdown", (event) => this._onPointerDown(event));
+    this._shadowRoot.addEventListener("pointerdown", (event) =>
+      this._onPointerDown(event)
+    );
   }
 
   attributeChangedCallback(name) {
@@ -170,8 +178,7 @@ export class XStepperElement extends HTMLElement {
 
     if (button === this["#increment-button"]) {
       action = "increment";
-    }
-    else if (button === this["#decrement-button"]) {
+    } else if (button === this["#decrement-button"]) {
       action = "decrement";
     }
 
@@ -187,35 +194,49 @@ export class XStepperElement extends HTMLElement {
       button.setAttribute("data-pressed", "");
       this.setPointerCapture(pointerDownEvent.pointerId);
 
-      this.addEventListener("lostpointercapture", async (event) => {
-        let pressedTime = Date.now() - pointerDownTimeStamp;
-        let minPressedTime = 100;
+      this.addEventListener(
+        "lostpointercapture",
+        async (event) => {
+          let pressedTime = Date.now() - pointerDownTimeStamp;
+          let minPressedTime = 100;
 
-        if (pressedTime < minPressedTime) {
-          await sleep(minPressedTime - pressedTime);
-        }
+          if (pressedTime < minPressedTime) {
+            await sleep(minPressedTime - pressedTime);
+          }
 
-        button.removeAttribute("data-pressed");
-      }, {once: true});
+          button.removeAttribute("data-pressed");
+        },
+        { once: true }
+      );
     }
 
     // Dispatch events
     {
       let intervalID = null;
       let pointerDownTimeStamp = Date.now();
-      let {shiftKey} = pointerDownEvent;
+      let { shiftKey } = pointerDownEvent;
 
-      this.dispatchEvent(new CustomEvent(action + "start", {bubbles: true}));
-      this.dispatchEvent(new CustomEvent(action, {bubbles: true, detail: {shiftKey}}));
+      this.dispatchEvent(new CustomEvent(action + "start", { bubbles: true }));
+      this.dispatchEvent(
+        new CustomEvent(action, { bubbles: true, detail: { shiftKey } })
+      );
 
-      this.addEventListener("lostpointercapture", async (event) => {
-        clearInterval(intervalID);
-        this.dispatchEvent(new CustomEvent(action + "end", {bubbles: true}));
-      }, {once: true});
+      this.addEventListener(
+        "lostpointercapture",
+        async (event) => {
+          clearInterval(intervalID);
+          this.dispatchEvent(
+            new CustomEvent(action + "end", { bubbles: true })
+          );
+        },
+        { once: true }
+      );
 
       intervalID = setInterval(() => {
         if (Date.now() - pointerDownTimeStamp > 500) {
-          this.dispatchEvent(new CustomEvent(action, {bubbles: true, detail: {shiftKey}}));
+          this.dispatchEvent(
+            new CustomEvent(action, { bubbles: true, detail: { shiftKey } })
+          );
         }
       }, 100);
     }

@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
 let debug = false;
 
@@ -65,7 +64,9 @@ export class XMenuBarElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +76,7 @@ export class XMenuBarElement extends HTMLElement {
 
     this._expanded = false;
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mode: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -83,23 +84,37 @@ export class XMenuBarElement extends HTMLElement {
     }
 
     this.addEventListener("focusout", (event) => this._onFocusOut(event));
-    this._shadowRoot.addEventListener("pointerover", (event) => this._onShadowRootPointerOver(event));
-    this._shadowRoot.addEventListener("click", (event) => this._onShadowRootClick(event));
-    this._shadowRoot.addEventListener("wheel", (event) => this._onShadowRootWheel(event));
-    this._shadowRoot.addEventListener("keydown", (event) => this._onShadowRootKeyDown(event));
+    this._shadowRoot.addEventListener("pointerover", (event) =>
+      this._onShadowRootPointerOver(event)
+    );
+    this._shadowRoot.addEventListener("click", (event) =>
+      this._onShadowRootClick(event)
+    );
+    this._shadowRoot.addEventListener("wheel", (event) =>
+      this._onShadowRootWheel(event)
+    );
+    this._shadowRoot.addEventListener("keydown", (event) =>
+      this._onShadowRootKeyDown(event)
+    );
   }
 
   connectedCallback() {
     this.setAttribute("role", "menubar");
     this.setAttribute("aria-disabled", this.disabled);
 
-    window.addEventListener("orientationchange", this._orientationChangeListener = () => {
-      this._onOrientationChange();
-    });
+    window.addEventListener(
+      "orientationchange",
+      (this._orientationChangeListener = () => {
+        this._onOrientationChange();
+      })
+    );
   }
 
   disconnectedCallback() {
-    window.removeEventListener("orientationchange", this._orientationChangeListener);
+    window.removeEventListener(
+      "orientationchange",
+      this._orientationChangeListener
+    );
   }
 
   attributeChangedCallback(name) {
@@ -123,7 +138,7 @@ export class XMenuBarElement extends HTMLElement {
         menu.openNextToElement(item, "vertical");
 
         let menus = this.querySelectorAll(":scope > x-menuitem > x-menu");
-        let otherMenus = [...menus].filter($0 => $0 !== menu);
+        let otherMenus = [...menus].filter(($0) => $0 !== menu);
 
         for (let otherMenu of otherMenus) {
           if (otherMenu) {
@@ -134,9 +149,11 @@ export class XMenuBarElement extends HTMLElement {
 
       // Show the backdrop
       {
-        let {x, y, width, height} = this.getBoundingClientRect();
+        let { x, y, width, height } = this.getBoundingClientRect();
 
-        this["#backdrop-path"].setAttribute("d", `
+        this["#backdrop-path"].setAttribute(
+          "d",
+          `
           M 0 0
           L ${window.innerWidth} 0
           L ${window.innerWidth} ${window.innerHeight}
@@ -146,7 +163,8 @@ export class XMenuBarElement extends HTMLElement {
           L ${x + width} ${y}
           L ${x + width} ${y + height}
           L ${x} ${y + height}
-        `);
+        `
+        );
 
         this["#backdrop"].removeAttribute("hidden");
       }
@@ -154,7 +172,7 @@ export class XMenuBarElement extends HTMLElement {
   }
 
   _collapseMenubarItems() {
-    return new Promise( async (resolve) => {
+    return new Promise(async (resolve) => {
       this._expanded = false;
       this.style.touchAction = null;
 
@@ -166,7 +184,9 @@ export class XMenuBarElement extends HTMLElement {
 
       // Close all opened menus
       {
-        let menus = this.querySelectorAll(":scope > x-menuitem > x-menu[opened]");
+        let menus = this.querySelectorAll(
+          ":scope > x-menuitem > x-menu[opened]"
+        );
 
         for (let menu of menus) {
           await menu.close(true);
@@ -184,19 +204,27 @@ export class XMenuBarElement extends HTMLElement {
   }
 
   _expandPreviousMenubarItem() {
-    let items = [...this.querySelectorAll(":scope > x-menuitem:not([disabled])")];
-    let focusedItem = this.querySelector(":focus").closest("x-menubar > x-menuitem");
+    let items = [
+      ...this.querySelectorAll(":scope > x-menuitem:not([disabled])"),
+    ];
+    let focusedItem = this.querySelector(":focus").closest(
+      "x-menubar > x-menuitem"
+    );
 
     if (items.length > 1 && focusedItem) {
       let i = items.indexOf(focusedItem);
-      let previousItem = items[i - 1] || items[items.length-1];
+      let previousItem = items[i - 1] || items[items.length - 1];
       this._expandMenubarItem(previousItem);
     }
   }
 
   _expandNextMenubarItem() {
-    let items = [...this.querySelectorAll(":scope > x-menuitem:not([disabled])")];
-    let focusedItem = this.querySelector(":focus").closest("x-menubar > x-menuitem");
+    let items = [
+      ...this.querySelectorAll(":scope > x-menuitem:not([disabled])"),
+    ];
+    let focusedItem = this.querySelector(":focus").closest(
+      "x-menubar > x-menuitem"
+    );
 
     if (focusedItem && items.length > 1) {
       let i = items.indexOf(focusedItem);
@@ -212,7 +240,11 @@ export class XMenuBarElement extends HTMLElement {
   }
 
   _onFocusOut(event) {
-    if ((event.relatedTarget === null || this.contains(event.relatedTarget) === false) && debug === false) {
+    if (
+      (event.relatedTarget === null ||
+        this.contains(event.relatedTarget) === false) &&
+      debug === false
+    ) {
       this._collapseMenubarItems();
     }
   }
@@ -237,21 +269,25 @@ export class XMenuBarElement extends HTMLElement {
     let item = event.target.closest("x-menuitem");
     let ownerMenu = event.target.closest("x-menu");
 
-    if (item && item.disabled === false && (!ownerMenu || ownerMenu.contains(item))) {
+    if (
+      item &&
+      item.disabled === false &&
+      (!ownerMenu || ownerMenu.contains(item))
+    ) {
       let menu = item.querySelector("x-menu");
 
       if (item.parentElement === this) {
         if (menu) {
-          menu.opened ? this._collapseMenubarItems() : this._expandMenubarItem(item);
+          menu.opened
+            ? this._collapseMenubarItems()
+            : this._expandMenubarItem(item);
         }
-      }
-      else {
+      } else {
         if (menu) {
           if (menu.opened && menu.opened === false) {
             menu.openNextToElement(item, "horizontal");
           }
-        }
-        else {
+        } else {
           this.setAttribute("closing", "");
 
           await item.whenTriggerEnd;
@@ -260,9 +296,7 @@ export class XMenuBarElement extends HTMLElement {
           this.removeAttribute("closing");
         }
       }
-    }
-
-    else if (event.target === this["#backdrop-path"]) {
+    } else if (event.target === this["#backdrop-path"]) {
       this._collapseMenubarItems();
       event.preventDefault();
       event.stopPropagation();
@@ -276,12 +310,15 @@ export class XMenuBarElement extends HTMLElement {
 
     let item = event.target.closest("x-menuitem");
 
-    if (event.target.closest("x-menu") === null && item && item.parentElement === this) {
+    if (
+      event.target.closest("x-menu") === null &&
+      item &&
+      item.parentElement === this
+    ) {
       if (this._expanded && event.pointerType !== "touch") {
         if (item.hasAttribute("expanded") === false) {
           this._expandMenubarItem(item);
-        }
-        else {
+        } else {
           item.focus();
         }
       }
@@ -292,26 +329,22 @@ export class XMenuBarElement extends HTMLElement {
     if (this.hasAttribute("closing")) {
       event.stopPropagation();
       event.preventDefault();
-    }
-
-    else if (event.code === "Enter" || event.code === "Space") {
+    } else if (event.code === "Enter" || event.code === "Space") {
       let focusedMenubarItem = this.querySelector(":scope > x-menuitem:focus");
 
       if (focusedMenubarItem) {
         event.preventDefault();
         focusedMenubarItem.click();
       }
-    }
-
-    else if (event.code === "Escape") {
+    } else if (event.code === "Escape") {
       if (this._expanded) {
         event.preventDefault();
         this._collapseMenubarItems();
       }
-    }
-
-    else if (event.code === "Tab") {
-      let refItem = this.querySelector(":scope > x-menuitem:focus, :scope > x-menuitem[expanded]");
+    } else if (event.code === "Tab") {
+      let refItem = this.querySelector(
+        ":scope > x-menuitem:focus, :scope > x-menuitem[expanded]"
+      );
 
       if (refItem) {
         refItem.focus();
@@ -326,26 +359,18 @@ export class XMenuBarElement extends HTMLElement {
           });
         }
       }
-    }
-
-    else if (event.code === "ArrowRight") {
+    } else if (event.code === "ArrowRight") {
       this._expandNextMenubarItem();
-    }
-
-    else if (event.code === "ArrowLeft") {
+    } else if (event.code === "ArrowLeft") {
       this._expandPreviousMenubarItem();
-    }
-
-    else if (event.code === "ArrowDown") {
+    } else if (event.code === "ArrowDown") {
       let menu = this.querySelector("x-menuitem:focus > x-menu");
 
       if (menu) {
         event.preventDefault();
         menu.focusFirstMenuItem();
       }
-    }
-
-    else if (event.code === "ArrowUp") {
+    } else if (event.code === "ArrowUp") {
       let menu = this.querySelector("x-menuitem:focus > x-menu");
 
       if (menu) {

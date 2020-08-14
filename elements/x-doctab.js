@@ -1,11 +1,10 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {createElement, html, closest} from "../utils/element.js";
-import {sleep} from "../utils/time.js";
+import { createElement, html, closest } from "../utils/element.js";
+import { sleep } from "../utils/time.js";
 
-let {max} = Math;
+let { max } = Math;
 
 let easing = "cubic-bezier(0.4, 0, 0.2, 1)";
 
@@ -22,9 +21,8 @@ let shadowTemplate = html`
         flex: 1 0 0;
         transition-property: max-width, padding, order;
         transition-duration: 0.15s;
-        transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         cursor: default;
-        padding: 0 4px 0 16px;
         user-select: none;
         touch-action: pan-y;
         box-sizing: border-box;
@@ -45,6 +43,7 @@ let shadowTemplate = html`
         --close-button-height: 18px;
         --close-button-margin: 0 0 0 auto;
         --close-button-opacity: 0.8;
+        --close-button-radius: 18px;
         --close-button-path-d: path(
           "M 74 31 L 69 26 L 50 45 L 31 26 L 26 31 L 45 50 L 26 69 L 31 74 L 50 55 L 69 74 L 74 69 L 55 50 Z"
         );
@@ -80,10 +79,13 @@ let shadowTemplate = html`
         left: var(--close-button-left);
         right: var(--close-button-right);
         width: var(--close-button-width);
+        min-width: var(--close-button-width);
         height: var(--close-button-height);
         margin: var(--close-button-margin);
         opacity: var(--close-button-opacity);
+        border-radius: var(--close-button-radius);
         padding: 1px;
+        overflow: hidden;
       }
       #close-button:hover {
         background: rgba(0, 0, 0, 0.08);
@@ -194,7 +196,9 @@ export class XDocTabElement extends HTMLElement {
     return this.hasAttribute("selected");
   }
   set selected(selected) {
-    selected ? this.setAttribute("selected", "") : this.removeAttribute("selected");
+    selected
+      ? this.setAttribute("selected", "")
+      : this.removeAttribute("selected");
   }
 
   // @property
@@ -220,7 +224,9 @@ export class XDocTabElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled === true ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled === true
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,15 +234,19 @@ export class XDocTabElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
       this["#" + element.id] = element;
     }
 
-    this["#close-button"].addEventListener("pointerdown", (event) => this._onCloseButtonPointerDown(event));
-    this["#close-button"].addEventListener("click", (event) => this._onCloseButtonClick(event));
+    this["#close-button"].addEventListener("pointerdown", (event) =>
+      this._onCloseButtonPointerDown(event)
+    );
+    this["#close-button"].addEventListener("click", (event) =>
+      this._onCloseButtonClick(event)
+    );
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
     this.addEventListener("click", (event) => this._onClick(event));
   }
@@ -251,11 +261,9 @@ export class XDocTabElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "selected") {
+    } else if (name === "selected") {
       this._onSelectedAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
     }
   }
@@ -296,51 +304,70 @@ export class XDocTabElement extends HTMLElement {
       this.setAttribute("pressed", "");
       this.setPointerCapture(pointerDownEvent.pointerId);
 
-      this.addEventListener("lostpointercapture", async (event) => {
-        if (this.selected === true) {
-          let pressedTime = Date.now() - pointerDownTimeStamp;
-          let minPressedTime = 100;
+      this.addEventListener(
+        "lostpointercapture",
+        async (event) => {
+          if (this.selected === true) {
+            let pressedTime = Date.now() - pointerDownTimeStamp;
+            let minPressedTime = 100;
 
-          if (pressedTime < minPressedTime) {
-            await sleep(minPressedTime - pressedTime);
+            if (pressedTime < minPressedTime) {
+              await sleep(minPressedTime - pressedTime);
+            }
           }
-        }
 
-        this.removeAttribute("pressed");
-      }, {once: true});
+          this.removeAttribute("pressed");
+        },
+        { once: true }
+      );
     }
 
     // Ripple
     {
-      let rippleType = getComputedStyle(this).getPropertyValue("--ripple-type").trim();
+      let rippleType = getComputedStyle(this)
+        .getPropertyValue("--ripple-type")
+        .trim();
 
       if (rippleType === "bounded") {
         let rect = this["#ripples"].getBoundingClientRect();
         let size = max(rect.width, rect.height) * 1.5;
-        let top  = pointerDownEvent.clientY - rect.y - size/2;
-        let left = pointerDownEvent.clientX - rect.x - size/2;
+        let top = pointerDownEvent.clientY - rect.y - size / 2;
+        let left = pointerDownEvent.clientX - rect.x - size / 2;
 
         let ripple = createElement("div");
         ripple.setAttribute("class", "ripple pointer-down-ripple");
-        ripple.setAttribute("style", `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`);
+        ripple.setAttribute(
+          "style",
+          `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`
+        );
         this["#ripples"].append(ripple);
 
-        let inAnimation = ripple.animate({ transform: ["scale(0)", "scale(1)"]}, { duration: 300, easing });
+        let inAnimation = ripple.animate(
+          { transform: ["scale(0)", "scale(1)"] },
+          { duration: 300, easing }
+        );
 
         // Pointer capture is set on the owner tabs rather than this tab intentionally. Owner tabs might be
         // already capturing the pointer and hijacking it would disrupt the currently performed tab move
         // operation.
         this.ownerTabs.setPointerCapture(pointerDownEvent.pointerId);
 
-        this.ownerTabs.addEventListener("lostpointercapture", async () => {
-          await inAnimation.finished;
+        this.ownerTabs.addEventListener(
+          "lostpointercapture",
+          async () => {
+            await inAnimation.finished;
 
-          let fromOpacity = getComputedStyle(ripple).opacity;
-          let outAnimation = ripple.animate({ opacity: [fromOpacity, "0"]}, { duration: 300, easing });
-          await outAnimation.finished;
+            let fromOpacity = getComputedStyle(ripple).opacity;
+            let outAnimation = ripple.animate(
+              { opacity: [fromOpacity, "0"] },
+              { duration: 300, easing }
+            );
+            await outAnimation.finished;
 
-          ripple.remove();
-        }, {once: true});
+            ripple.remove();
+          },
+          { once: true }
+        );
       }
     }
   }
@@ -352,24 +379,35 @@ export class XDocTabElement extends HTMLElement {
 
     // Ripple
     if (this["#ripples"].querySelector(".pointer-down-ripple") === null) {
-      let rippleType = getComputedStyle(this).getPropertyValue("--ripple-type").trim();
+      let rippleType = getComputedStyle(this)
+        .getPropertyValue("--ripple-type")
+        .trim();
 
       if (rippleType === "bounded") {
         let rect = this["#ripples"].getBoundingClientRect();
         let size = max(rect.width, rect.height) * 1.5;
-        let top  = (rect.y + rect.height/2) - rect.y - size/2;
-        let left = (rect.x + rect.width/2) - rect.x - size/2;
+        let top = rect.y + rect.height / 2 - rect.y - size / 2;
+        let left = rect.x + rect.width / 2 - rect.x - size / 2;
 
         let ripple = createElement("div");
         ripple.setAttribute("class", "ripple click-ripple");
-        ripple.setAttribute("style", `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`);
+        ripple.setAttribute(
+          "style",
+          `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`
+        );
         this["#ripples"].append(ripple);
 
-        let inAnimation = ripple.animate({ transform: ["scale(0)", "scale(1)"]}, { duration: 300, easing });
+        let inAnimation = ripple.animate(
+          { transform: ["scale(0)", "scale(1)"] },
+          { duration: 300, easing }
+        );
         await inAnimation.finished;
 
         let fromOpacity = getComputedStyle(ripple).opacity;
-        let outAnimation = ripple.animate({ opacity: [fromOpacity, "0"] }, { duration: 300, easing });
+        let outAnimation = ripple.animate(
+          { opacity: [fromOpacity, "0"] },
+          { duration: 300, easing }
+        );
         await outAnimation.finished;
 
         ripple.remove();
@@ -392,13 +430,17 @@ export class XDocTabElement extends HTMLElement {
 
     event.stopPropagation();
 
-    let customEvent = new CustomEvent("close", {bubbles: true, cancelable: true, detail: this});
+    let customEvent = new CustomEvent("close", {
+      bubbles: true,
+      cancelable: true,
+      detail: this,
+    });
     this.dispatchEvent(customEvent);
 
     if (customEvent.defaultPrevented === false) {
       this.ownerTabs.closeTab(this);
     }
   }
-};
+}
 
 customElements.define("x-doctab", XDocTabElement);

@@ -1,12 +1,13 @@
-
 // @info
 //   Element responsible for displaying a platform-agnostic keyboard shortcut.
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
-let isAppleDevice = navigator.platform.startsWith("Mac") || ["iPhone", "iPad"].includes(navigator.platform);
+let isAppleDevice =
+  navigator.platform.startsWith("Mac") ||
+  ["iPhone", "iPad"].includes(navigator.platform);
 
 // @doc
 //   https://www.w3.org/TR/uievents-key/#keys-modifier
@@ -22,7 +23,7 @@ let modKeys = [
   "ScrollLock",
   "Shift",
   "Symbol",
-  "SymbolLock"
+  "SymbolLock",
 ];
 
 let shadowTemplate = html`
@@ -58,7 +59,9 @@ export class XShortcutElement extends HTMLElement {
 
     if (this.hasAttribute("value")) {
       let parts = this.getAttribute("value").replace("++", "+PLUS").split("+");
-      parts = parts.map($0 => $0.trim().replace("PLUS", "+")).filter($0 => $0 !== "");
+      parts = parts
+        .map(($0) => $0.trim().replace("PLUS", "+"))
+        .filter(($0) => $0 !== "");
       value = parts;
     }
 
@@ -71,13 +74,13 @@ export class XShortcutElement extends HTMLElement {
   // @type
   //   Array<string>
   get modKeys() {
-    return this.value.filter(key => modKeys.includes(key));
+    return this.value.filter((key) => modKeys.includes(key));
   }
 
   // @type
   //   String?
   get normalKey() {
-    let key = this.value.find(key => modKeys.includes(key) === false);
+    let key = this.value.find((key) => modKeys.includes(key) === false);
     return key === undefined ? null : key;
   }
 
@@ -86,7 +89,7 @@ export class XShortcutElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -127,18 +130,17 @@ export class XShortcutElement extends HTMLElement {
       }
 
       let mappings = {
-        "ArrowUp": "↑",
-        "ArrowDown": "↓",
-        "ArrowLeft": "←",
-        "ArrowRight": "→",
-        "Backspace": "⌦"
+        ArrowUp: "↑",
+        ArrowDown: "↓",
+        ArrowLeft: "←",
+        ArrowRight: "→",
+        Backspace: "⌦",
       };
 
       if (normalKey !== undefined) {
         displayValue += mappings[normalKey] || normalKey;
       }
-    }
-    else {
+    } else {
       let parts = [];
 
       if (modKeys.includes("Control")) {
@@ -158,10 +160,10 @@ export class XShortcutElement extends HTMLElement {
       }
 
       let mappings = {
-        "ArrowUp": "Up",
-        "ArrowDown": "Down",
-        "ArrowLeft": "Left",
-        "ArrowRight": "Right"
+        ArrowUp: "Up",
+        ArrowDown: "Down",
+        ArrowLeft: "Left",
+        ArrowRight: "Right",
       };
 
       if (normalKey !== null) {

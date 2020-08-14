@@ -1,4 +1,3 @@
-
 // @info
 //   Radio widget.
 // @doc
@@ -6,7 +5,7 @@
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, closest} from "../utils/element.js";
+import { html, closest } from "../utils/element.js";
 
 let $oldTabIndex = Symbol();
 
@@ -86,7 +85,9 @@ export class XRadioElement extends HTMLElement {
     return this.hasAttribute("value") ? this.getAttribute("value") : null;
   }
   set value(value) {
-    value === null ? this.removeAttribute("value") : this.setAttribute("value", value);
+    value === null
+      ? this.removeAttribute("value")
+      : this.setAttribute("value", value);
   }
 
   // @type
@@ -98,7 +99,9 @@ export class XRadioElement extends HTMLElement {
     return this.hasAttribute("toggled");
   }
   set toggled(toggled) {
-    toggled ? this.setAttribute("toggled", "") : this.removeAttribute("toggled");
+    toggled
+      ? this.setAttribute("toggled", "")
+      : this.removeAttribute("toggled");
   }
 
   // @type
@@ -122,7 +125,9 @@ export class XRadioElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +135,7 @@ export class XRadioElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -149,8 +154,7 @@ export class XRadioElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === "toggled") {
       this._onToggledAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
     }
   }
@@ -164,12 +168,11 @@ export class XRadioElement extends HTMLElement {
 
     if (!this.closest("x-radios")) {
       if (this.disabled) {
-        this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+        this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
         this.tabIndex = -1;
-      }
-      else {
+      } else {
         if (this.tabIndex < 0) {
-          this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+          this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
         }
 
         delete this[$oldTabIndex];
@@ -191,13 +194,12 @@ export class XRadioElement extends HTMLElement {
     if (!this.closest("x-radios")) {
       if (this.toggled && this.mixed) {
         this.mixed = false;
-      }
-      else {
+      } else {
         this.mixed = false;
         this.toggled = !this.toggled;
       }
 
-      this.dispatchEvent(new CustomEvent("toggle", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("toggle", { bubbles: true }));
     }
   }
 
@@ -220,6 +222,6 @@ export class XRadioElement extends HTMLElement {
       this.click();
     }
   }
-};
+}
 
 customElements.define("x-radio", XRadioElement);

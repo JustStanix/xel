@@ -1,14 +1,33 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
-import {isNumeric} from "../utils/string.js";
-import {debounce, sleep} from "../utils/time.js";
-import {normalize, getPrecision, comparePoints, getDistanceBetweenPoints} from "../utils/math.js";
+import { html } from "../utils/element.js";
+import { isNumeric } from "../utils/string.js";
+import { debounce, sleep } from "../utils/time.js";
+import {
+  normalize,
+  getPrecision,
+  comparePoints,
+  getDistanceBetweenPoints,
+} from "../utils/math.js";
 
-let {isFinite} = Number;
-let numericKeys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-", "+", ",", "."];
+let { isFinite } = Number;
+let numericKeys = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "-",
+  "+",
+  ",",
+  ".",
+];
 let $oldTabIndex = Symbol();
 
 let shadowTemplate = html`
@@ -22,7 +41,7 @@ let shadowTemplate = html`
         box-sizing: border-box;
         color: #000000;
         --selection-color: currentColor;
-        --selection-background: #B2D7FD;
+        --selection-background: #b2d7fd;
         --inner-padding: 0;
       }
       :host(:hover) {
@@ -97,7 +116,11 @@ let shadowTemplate = html`
 
     <main id="main">
       <div id="editor-container">
-        <div id="editor" contenteditable="plaintext-only" spellcheck="false"></div>
+        <div
+          id="editor"
+          contenteditable="plaintext-only"
+          spellcheck="false"
+        ></div>
       </div>
 
       <slot></slot>
@@ -122,10 +145,14 @@ export class XNumberInputElement extends HTMLElement {
   //   null
   // @attribute
   get value() {
-    return this.hasAttribute("value") ? parseFloat(this.getAttribute("value")) : null;
+    return this.hasAttribute("value")
+      ? parseFloat(this.getAttribute("value"))
+      : null;
   }
   set value(value) {
-    value === null ? this.removeAttribute("value") : this.setAttribute("value", value);
+    value === null
+      ? this.removeAttribute("value")
+      : this.setAttribute("value", value);
   }
 
   // @type
@@ -134,7 +161,9 @@ export class XNumberInputElement extends HTMLElement {
   //   -Infinity
   // @attribute
   get min() {
-    return this.hasAttribute("min") ? parseFloat(this.getAttribute("min")) : -Infinity;
+    return this.hasAttribute("min")
+      ? parseFloat(this.getAttribute("min"))
+      : -Infinity;
   }
   set min(min) {
     isFinite(min) ? this.setAttribute("min", min) : this.removeAttribute("min");
@@ -146,7 +175,9 @@ export class XNumberInputElement extends HTMLElement {
   //   Infinity
   // @attribute
   get max() {
-    return this.hasAttribute("max") ? parseFloat(this.getAttribute("max")) : Infinity;
+    return this.hasAttribute("max")
+      ? parseFloat(this.getAttribute("max"))
+      : Infinity;
   }
   set max(max) {
     isFinite(max) ? this.setAttribute("max", max) : this.removeAttribute("max");
@@ -172,7 +203,9 @@ export class XNumberInputElement extends HTMLElement {
   //   20
   // @attribute
   get precision() {
-    return this.hasAttribute("precision") ? parseFloat(this.getAttribute("precision")) : 20;
+    return this.hasAttribute("precision")
+      ? parseFloat(this.getAttribute("precision"))
+      : 20;
   }
   set precision(value) {
     this.setAttribute("precision", value);
@@ -186,7 +219,9 @@ export class XNumberInputElement extends HTMLElement {
   //   1
   // @attribute
   get step() {
-    return this.hasAttribute("step") ? parseFloat(this.getAttribute("step")) : 1;
+    return this.hasAttribute("step")
+      ? parseFloat(this.getAttribute("step"))
+      : 1;
   }
   set step(step) {
     this.setAttribute("step", step);
@@ -225,7 +260,9 @@ export class XNumberInputElement extends HTMLElement {
     return this.hasAttribute("required");
   }
   set required(required) {
-    required ? this.setAttribute("required", "") : this.removeAttribute("required");
+    required
+      ? this.setAttribute("required", "")
+      : this.removeAttribute("required");
   }
 
   // @info
@@ -251,7 +288,9 @@ export class XNumberInputElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   // @type
@@ -263,7 +302,9 @@ export class XNumberInputElement extends HTMLElement {
     return this.getAttribute("error");
   }
   set error(error) {
-    error === null ? this.removeAttribute("error") : this.setAttribute("error", error);
+    error === null
+      ? this.removeAttribute("error")
+      : this.setAttribute("error", error);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -277,25 +318,40 @@ export class XNumberInputElement extends HTMLElement {
     this._isBackspaceKeyDown = false;
     this._isStepperButtonDown = false;
 
-    this._maybeDispatchChangeEndEvent = debounce(this._maybeDispatchChangeEndEvent, 500, this);
+    this._maybeDispatchChangeEndEvent = debounce(
+      this._maybeDispatchChangeEndEvent,
+      500,
+      this
+    );
 
-    this._shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
+    this._shadowRoot = this.attachShadow({
+      mide: "open",
+      delegatesFocus: true,
+    });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
       this["#" + element.id] = element;
     }
 
-    this._shadowRoot.addEventListener("pointerdown", (event) => this._onShadowRootPointerDown(event));
+    this._shadowRoot.addEventListener("pointerdown", (event) =>
+      this._onShadowRootPointerDown(event)
+    );
     this._shadowRoot.addEventListener("wheel", (event) => this._onWheel(event));
     this["#editor"].addEventListener("paste", (event) => this._onPaste(event));
-    this["#editor"].addEventListener("input", (event) => this._onEditorInput(event));
+    this["#editor"].addEventListener("input", (event) =>
+      this._onEditorInput(event)
+    );
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
     this.addEventListener("keyup", (event) => this._onKeyUp(event));
     this.addEventListener("keypress", (event) => this._onKeyPress(event));
-    this.addEventListener("incrementstart", (event) => this._onStepperIncrementStart(event));
-    this.addEventListener("decrementstart", (event) => this._onStepperDecrementStart(event));
+    this.addEventListener("incrementstart", (event) =>
+      this._onStepperIncrementStart(event)
+    );
+    this.addEventListener("decrementstart", (event) =>
+      this._onStepperDecrementStart(event)
+    );
     this.addEventListener("focusin", (event) => this._onFocusIn(event));
     this.addEventListener("focusout", (event) => this._onFocusOut(event));
   }
@@ -309,20 +365,15 @@ export class XNumberInputElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "min") {
+    } else if (name === "min") {
       this._onMinAttributeChange();
-    }
-    else if (name === "max") {
+    } else if (name === "max") {
       this._onMaxAttributeChange();
-    }
-    else if (name === "prefix") {
+    } else if (name === "prefix") {
       this._onPrefixAttributeChange();
-    }
-    else if (name === "suffix") {
+    } else if (name === "suffix") {
       this._onSuffixAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
     }
   }
@@ -334,14 +385,11 @@ export class XNumberInputElement extends HTMLElement {
   validate() {
     if (this.value < this.min) {
       this.error = "Value is too low";
-    }
-    else if (this.value > this.max) {
+    } else if (this.value > this.max) {
       this.error = "Value is too high";
-    }
-    else if (this.required && this.value === null) {
+    } else if (this.required && this.value === null) {
       this.error = "This field is required";
-    }
-    else {
+    } else {
       this.error = null;
     }
   }
@@ -349,13 +397,12 @@ export class XNumberInputElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   _increment(large = false) {
-    let oldValue = this.value
+    let oldValue = this.value;
     let newValue = this.value;
 
     if (large) {
       newValue += this.step * 10;
-    }
-    else {
+    } else {
       newValue += this.step;
     }
 
@@ -374,13 +421,12 @@ export class XNumberInputElement extends HTMLElement {
   }
 
   _decrement(large = false) {
-    let oldValue = this.value
+    let oldValue = this.value;
     let newValue = this.value;
 
     if (large) {
       newValue -= this.step * 10;
-    }
-    else {
+    } else {
       newValue -= this.step;
     }
 
@@ -403,28 +449,35 @@ export class XNumberInputElement extends HTMLElement {
   _maybeDispatchChangeStartEvent() {
     if (!this._isChangeStart) {
       this._isChangeStart = true;
-      this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
     }
   }
 
   _maybeDispatchChangeEndEvent() {
-    if (this._isChangeStart && !this._isArrowKeyDown && !this._isBackspaceKeyDown && !this._isStepperButtonDown) {
+    if (
+      this._isChangeStart &&
+      !this._isArrowKeyDown &&
+      !this._isBackspaceKeyDown &&
+      !this._isStepperButtonDown
+    ) {
       this._isChangeStart = false;
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
     }
   }
 
   _commitEditorChanges() {
-    let editorValue = this["#editor"].textContent.trim() === "" ? null : parseFloat(this["#editor"].textContent);
+    let editorValue =
+      this["#editor"].textContent.trim() === ""
+        ? null
+        : parseFloat(this["#editor"].textContent);
     let normalizedEditorValue = normalize(editorValue, this.min, this.max);
 
     if (normalizedEditorValue !== this.value) {
-      this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
       this.value = normalizedEditorValue;
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
-    }
-    else if (editorValue !== this.value) {
+      this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+      this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
+    } else if (editorValue !== this.value) {
       this.value = normalizedEditorValue;
     }
   }
@@ -442,8 +495,7 @@ export class XNumberInputElement extends HTMLElement {
   _updateEditorTextContent() {
     if (this.hasAttribute("value")) {
       this["#editor"].textContent = this.getAttribute("value").trim();
-    }
-    else {
+    } else {
       this["#editor"].textContent = "";
     }
   }
@@ -452,16 +504,17 @@ export class XNumberInputElement extends HTMLElement {
     let value = null;
 
     if (this.matches(":focus")) {
-      value = this["#editor"].textContent.trim() === "" ? null : parseFloat(this["#editor"].textContent);
-    }
-    else {
+      value =
+        this["#editor"].textContent.trim() === ""
+          ? null
+          : parseFloat(this["#editor"].textContent);
+    } else {
       value = this.value;
     }
 
     if (value === null) {
       this.setAttribute("empty", "");
-    }
-    else {
+    } else {
       this.removeAttribute("empty");
     }
   }
@@ -470,19 +523,16 @@ export class XNumberInputElement extends HTMLElement {
     let stepper = this.querySelector("x-stepper");
 
     if (stepper) {
-      let canDecrement = (this.value > this.min);
-      let canIncrement = (this.value < this.max);
+      let canDecrement = this.value > this.min;
+      let canIncrement = this.value < this.max;
 
       if (canIncrement === true && canDecrement === true) {
         stepper.removeAttribute("disabled");
-      }
-      else if (canIncrement === false && canDecrement === false) {
+      } else if (canIncrement === false && canDecrement === false) {
         stepper.setAttribute("disabled", "");
-      }
-      else if (canIncrement === false) {
+      } else if (canIncrement === false) {
         stepper.setAttribute("disabled", "increment");
-      }
-      else if (canDecrement === false) {
+      } else if (canDecrement === false) {
         stepper.setAttribute("disabled", "decrement");
       }
     }
@@ -493,12 +543,11 @@ export class XNumberInputElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -534,7 +583,9 @@ export class XNumberInputElement extends HTMLElement {
 
   _onFocusIn() {
     document.execCommand("selectAll");
-    this.dispatchEvent(new CustomEvent("textinputmodestart", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodestart", { bubbles: true, composed: true })
+    );
   }
 
   _onFocusOut() {
@@ -542,7 +593,9 @@ export class XNumberInputElement extends HTMLElement {
     this["#editor"].scrollLeft = 0;
 
     this._commitEditorChanges();
-    this.dispatchEvent(new CustomEvent("textinputmodeend", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodeend", { bubbles: true, composed: true })
+    );
   }
 
   _onEditorInput() {
@@ -558,11 +611,10 @@ export class XNumberInputElement extends HTMLElement {
 
       if (event.wheelDeltaX > 0 || event.wheelDeltaY > 0) {
         this._increment(event.shiftKey);
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
-      }
-      else {
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+      } else {
         this._decrement(event.shiftKey);
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
 
       this._maybeDispatchChangeEndEvent();
@@ -581,7 +633,10 @@ export class XNumberInputElement extends HTMLElement {
   }
 
   _onShadowRootPointerDown(pointerDownEvent) {
-    if (pointerDownEvent.buttons !== 1 || pointerDownEvent.isPrimary === false) {
+    if (
+      pointerDownEvent.buttons !== 1 ||
+      pointerDownEvent.isPrimary === false
+    ) {
       pointerDownEvent.preventDefault();
       return;
     }
@@ -592,52 +647,84 @@ export class XNumberInputElement extends HTMLElement {
 
         let initialValue = this.value;
         let cachedClientX = pointerDownEvent.clientX;
-        let pointerDownPoint = new DOMPoint(pointerDownEvent.clientX, pointerDownEvent.clientY);
+        let pointerDownPoint = new DOMPoint(
+          pointerDownEvent.clientX,
+          pointerDownEvent.clientY
+        );
         let pointerMoveListener, lostPointerCaptureListener;
 
         this.style.cursor = "col-resize";
         this["#editor"].setPointerCapture(pointerDownEvent.pointerId);
 
-        this["#editor"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-          let pointerMovePoint = new DOMPoint(pointerMoveEvent.clientX, pointerMoveEvent.clientY);
-          let deltaTime = pointerMoveEvent.timeStamp - pointerDownEvent.timeStamp;
-          let isDistinct = pointerMoveEvent.clientX !== cachedClientX;
-          let isIntentional = (getDistanceBetweenPoints(pointerDownPoint, pointerMovePoint) > 3 || deltaTime > 80);
-          cachedClientX = pointerMoveEvent.clientX;
+        this["#editor"].addEventListener(
+          "pointermove",
+          (pointerMoveListener = (pointerMoveEvent) => {
+            let pointerMovePoint = new DOMPoint(
+              pointerMoveEvent.clientX,
+              pointerMoveEvent.clientY
+            );
+            let deltaTime =
+              pointerMoveEvent.timeStamp - pointerDownEvent.timeStamp;
+            let isDistinct = pointerMoveEvent.clientX !== cachedClientX;
+            let isIntentional =
+              getDistanceBetweenPoints(pointerDownPoint, pointerMovePoint) >
+                3 || deltaTime > 80;
+            cachedClientX = pointerMoveEvent.clientX;
 
-          if (isDistinct && isIntentional && pointerMoveEvent.isPrimary) {
-            if (this._isDragging === false) {
-              this._isDragging = true;
-              this._isChangeStart = true;
-              this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+            if (isDistinct && isIntentional && pointerMoveEvent.isPrimary) {
+              if (this._isDragging === false) {
+                this._isDragging = true;
+                this._isChangeStart = true;
+                this.dispatchEvent(
+                  new CustomEvent("changestart", { bubbles: true })
+                );
+              }
+
+              let dragOffset =
+                pointerMoveEvent.clientX - pointerDownEvent.clientX;
+              let value = initialValue + dragOffset * this.step;
+
+              value = normalize(
+                value,
+                this.min,
+                this.max,
+                getPrecision(this.step)
+              );
+              this.value = value;
+              this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             }
+          })
+        );
 
+        this["#editor"].addEventListener(
+          "lostpointercapture",
+          (lostPointerCaptureListener = () => {
+            this["#editor"].removeEventListener(
+              "pointermove",
+              pointerMoveListener
+            );
+            this["#editor"].removeEventListener(
+              "lostpointercapture",
+              lostPointerCaptureListener
+            );
 
-            let dragOffset = pointerMoveEvent.clientX - pointerDownEvent.clientX;
-            let value = initialValue + (dragOffset * this.step);
+            this.style.cursor = null;
 
-            value = normalize(value, this.min, this.max, getPrecision(this.step));
-            this.value = value;
-            this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
-          }
-        });
-
-        this["#editor"].addEventListener("lostpointercapture",  lostPointerCaptureListener = () => {
-          this["#editor"].removeEventListener("pointermove", pointerMoveListener);
-          this["#editor"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-
-          this.style.cursor = null;
-
-          if (this._isDragging === true) {
-            this._isDragging = false;
-            this._isChangeStart = false;
-            this.dispatchEvent(new CustomEvent("changeend", {detail: this.value !== initialValue, bubbles: true}));
-          }
-          else {
-            this["#editor"].focus();
-            document.execCommand("selectAll");
-          }
-        });
+            if (this._isDragging === true) {
+              this._isDragging = false;
+              this._isChangeStart = false;
+              this.dispatchEvent(
+                new CustomEvent("changeend", {
+                  detail: this.value !== initialValue,
+                  bubbles: true,
+                })
+              );
+            } else {
+              this["#editor"].focus();
+              document.execCommand("selectAll");
+            }
+          })
+        );
       }
     }
   }
@@ -647,19 +734,25 @@ export class XNumberInputElement extends HTMLElement {
 
     this._isStepperButtonDown = true;
 
-    this.addEventListener("increment", incrementListener = (event) => {
-      this._maybeDispatchChangeStartEvent();
-      this._increment(event.detail.shiftKey);
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
-      this._maybeDispatchChangeEndEvent();
-      this._update();
-    });
+    this.addEventListener(
+      "increment",
+      (incrementListener = (event) => {
+        this._maybeDispatchChangeStartEvent();
+        this._increment(event.detail.shiftKey);
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+        this._maybeDispatchChangeEndEvent();
+        this._update();
+      })
+    );
 
-    this.addEventListener("incrementend", incrementEndListener = (event) => {
-      this._isStepperButtonDown = false;
-      this.removeEventListener("increment", incrementListener);
-      this.removeEventListener("incrementend", incrementEndListener);
-    });
+    this.addEventListener(
+      "incrementend",
+      (incrementEndListener = (event) => {
+        this._isStepperButtonDown = false;
+        this.removeEventListener("increment", incrementListener);
+        this.removeEventListener("incrementend", incrementEndListener);
+      })
+    );
   }
 
   _onStepperDecrementStart(event) {
@@ -667,20 +760,26 @@ export class XNumberInputElement extends HTMLElement {
 
     this._isStepperButtonDown = true;
 
-    this.addEventListener("decrement", decrementListener = (event) => {
-      this._maybeDispatchChangeStartEvent();
-      this._decrement(event.detail.shiftKey);
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
-      this._maybeDispatchChangeEndEvent();
+    this.addEventListener(
+      "decrement",
+      (decrementListener = (event) => {
+        this._maybeDispatchChangeStartEvent();
+        this._decrement(event.detail.shiftKey);
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+        this._maybeDispatchChangeEndEvent();
 
-      this._update();
-    });
+        this._update();
+      })
+    );
 
-    this.addEventListener("decrementend", decrementEndListener = (event) => {
-      this._isStepperButtonDown = false;
-      this.removeEventListener("decrement", decrementListener);
-      this.removeEventListener("decrementend", decrementEndListener);
-    });
+    this.addEventListener(
+      "decrementend",
+      (decrementEndListener = (event) => {
+        this._isStepperButtonDown = false;
+        this.removeEventListener("decrement", decrementListener);
+        this.removeEventListener("decrementend", decrementEndListener);
+      })
+    );
   }
 
   _onKeyDown(event) {
@@ -690,29 +789,23 @@ export class XNumberInputElement extends HTMLElement {
       this._isArrowKeyDown = true;
       this._maybeDispatchChangeStartEvent();
       this._decrement(event.shiftKey);
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       this._maybeDispatchChangeEndEvent();
 
       this._update();
-    }
-
-    else if (event.code === "ArrowUp") {
+    } else if (event.code === "ArrowUp") {
       event.preventDefault();
 
       this._isArrowKeyDown = true;
       this._maybeDispatchChangeStartEvent();
       this._increment(event.shiftKey);
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       this._maybeDispatchChangeEndEvent();
 
       this._update();
-    }
-
-    else if (event.code === "Backspace") {
+    } else if (event.code === "Backspace") {
       this._isBackspaceKeyDown = true;
-    }
-
-    else if (event.code === "Enter") {
+    } else if (event.code === "Enter") {
       this._commitEditorChanges();
       document.execCommand("selectAll");
     }
@@ -722,14 +815,10 @@ export class XNumberInputElement extends HTMLElement {
     if (event.code === "ArrowDown") {
       this._isArrowKeyDown = false;
       this._maybeDispatchChangeEndEvent();
-    }
-
-    else if (event.code === "ArrowUp") {
+    } else if (event.code === "ArrowUp") {
       this._isArrowKeyDown = false;
       this._maybeDispatchChangeEndEvent();
-    }
-
-    else if (event.code === "Backspace") {
+    } else if (event.code === "Backspace") {
       this._isBackspaceKeyDown = false;
     }
   }

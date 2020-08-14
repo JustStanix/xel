@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
 let shadowTemplate = html`
   <template>
@@ -78,7 +77,9 @@ export class XSwatchElement extends HTMLElement {
     return this.hasAttribute("selected");
   }
   set selected(selected) {
-    selected ? this.setAttribute("selected", "") : this.removeAttribute("selected");
+    selected
+      ? this.setAttribute("selected", "")
+      : this.removeAttribute("selected");
   }
 
   // @info
@@ -92,7 +93,9 @@ export class XSwatchElement extends HTMLElement {
     return this.hasAttribute("showicon");
   }
   set showicon(showicon) {
-    showicon ? this.setAttribute("showicon", "") : this.removeAttribute("showicon");
+    showicon
+      ? this.setAttribute("showicon", "")
+      : this.removeAttribute("showicon");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +103,7 @@ export class XSwatchElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {

@@ -1,14 +1,13 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, closest, createElement} from "../utils/element.js";
-import {throttle} from "../utils/time.js";
+import { html, closest, createElement } from "../utils/element.js";
+import { throttle } from "../utils/time.js";
 
 let debug = false;
 let windowPadding = 7;
 let $itemChild = Symbol();
-let $oldTabIndex = Symbol()
+let $oldTabIndex = Symbol();
 
 let shadowTemplate = html`
   <template>
@@ -112,7 +111,7 @@ export class XSelectElement extends HTMLElement {
   }
   set value(value) {
     for (let item of this.querySelectorAll("x-menuitem")) {
-      item.toggled = (item.value === value && value !== null);
+      item.toggled = item.value === value && value !== null;
     }
   }
 
@@ -139,7 +138,9 @@ export class XSelectElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,10 +151,14 @@ export class XSelectElement extends HTMLElement {
     this._wasFocusedBeforeExpanding = false;
     this._updateButtonTh300 = throttle(this._updateButton, 300, this);
 
-    this._mutationObserver = new MutationObserver((args) => this._onMutation(args));
-    this._resizeObserver = new ResizeObserver(() => this._updateButtonChildrenSize());
+    this._mutationObserver = new MutationObserver((args) =>
+      this._onMutation(args)
+    );
+    this._resizeObserver = new ResizeObserver(() =>
+      this._updateButtonChildrenSize()
+    );
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -163,17 +168,23 @@ export class XSelectElement extends HTMLElement {
     this["#backdrop"] = createElement("x-backdrop");
     this["#backdrop"].style.opacity = "0";
     this["#backdrop"].ownerElement = this;
-    this["#backdrop"].addEventListener("click", (event) => this._onBackdropClick(event));
+    this["#backdrop"].addEventListener("click", (event) =>
+      this._onBackdropClick(event)
+    );
 
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
     this.addEventListener("toggle", (event) => this._onMenuItemToggle(event));
     this.addEventListener("click", (event) => this._onClick(event));
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
-
   }
 
   connectedCallback() {
-    this._mutationObserver.observe(this, {childList: true, attributes: true, characterData: true, subtree: true});
+    this._mutationObserver.observe(this, {
+      childList: true,
+      attributes: true,
+      characterData: true,
+      subtree: true,
+    });
     this._resizeObserver.observe(this);
 
     this._updateButton();
@@ -206,15 +217,21 @@ export class XSelectElement extends HTMLElement {
 
     this["#backdrop"].show(false);
 
-    window.addEventListener("resize", this._resizeListener = () => {
-      this._collapse();
-    });
+    window.addEventListener(
+      "resize",
+      (this._resizeListener = () => {
+        this._collapse();
+      })
+    );
 
-    window.addEventListener("blur", this._blurListener = () => {
-      if (debug === false) {
-        this._collapse()
-      }
-    });
+    window.addEventListener(
+      "blur",
+      (this._blurListener = () => {
+        if (debug === false) {
+          this._collapse();
+        }
+      })
+    );
 
     let menu = this.querySelector(":scope > x-menu");
 
@@ -228,8 +245,7 @@ export class XSelectElement extends HTMLElement {
         if (item.toggled) {
           if (toggledItem === null) {
             toggledItem = item;
-          }
-          else {
+          } else {
             item.toggled = false;
           }
         }
@@ -241,12 +257,13 @@ export class XSelectElement extends HTMLElement {
       let toggledItem = menu.querySelector(`x-menuitem[toggled]`);
 
       if (toggledItem) {
-        let buttonChild = this["#button"].querySelector("x-label") || this["#button"].firstElementChild;
+        let buttonChild =
+          this["#button"].querySelector("x-label") ||
+          this["#button"].firstElementChild;
         let itemChild = buttonChild[$itemChild];
 
         menu.openOverElement(buttonChild, itemChild);
-      }
-      else {
+      } else {
         let item = menu.querySelector("x-menuitem").firstElementChild;
         menu.openOverElement(this["#button"], item);
       }
@@ -259,7 +276,8 @@ export class XSelectElement extends HTMLElement {
       let hostPaddingRight = parseFloat(getComputedStyle(this).paddingRight);
 
       if (menuBounds.right - hostPaddingRight < buttonBounds.right) {
-        menu.style.minWidth = (buttonBounds.right - menuBounds.left + hostPaddingRight) + "px";
+        menu.style.minWidth =
+          buttonBounds.right - menuBounds.left + hostPaddingRight + "px";
       }
     }
 
@@ -268,7 +286,8 @@ export class XSelectElement extends HTMLElement {
       let menuBounds = this.getBoundingClientRect();
 
       if (menuBounds.right + windowPadding > window.innerWidth) {
-        this.style.maxWidth = (window.innerWidth - menuBounds.left - windowPadding) + "px";
+        this.style.maxWidth =
+          window.innerWidth - menuBounds.left - windowPadding + "px";
       }
     }
   }
@@ -285,8 +304,7 @@ export class XSelectElement extends HTMLElement {
 
     if (this._wasFocusedBeforeExpanding) {
       this.focus();
-    }
-    else {
+    } else {
       let ancestorFocusableElement = closest(this.parentNode, "[tabindex]");
 
       if (ancestorFocusableElement) {
@@ -304,22 +322,29 @@ export class XSelectElement extends HTMLElement {
   _canExpand() {
     if (this.disabled) {
       return false;
-    }
-    else {
+    } else {
       let menu = this.querySelector(":scope > x-menu");
       let item = menu.querySelector("x-menuitem");
-      return menu !== null && menu.opened === false && menu.hasAttribute("closing") === false && item !== null;
+      return (
+        menu !== null &&
+        menu.opened === false &&
+        menu.hasAttribute("closing") === false &&
+        item !== null
+      );
     }
   }
 
   _canCollapse() {
     if (this.disabled) {
       return false;
-    }
-    else {
+    } else {
       let menu = this.querySelector(":scope > x-menu");
       let item = menu.querySelector("x-menuitem");
-      return menu !== null && menu.opened === true && menu.hasAttribute("closing") === false;
+      return (
+        menu !== null &&
+        menu.opened === true &&
+        menu.hasAttribute("closing") === false
+      );
     }
   }
 
@@ -347,9 +372,15 @@ export class XSelectElement extends HTMLElement {
   _updateButtonChildrenSize() {
     for (let buttonChild of this["#button"].children) {
       if (buttonChild !== this["#arrow-container"]) {
-        let {width, height, margin, padding, border} = getComputedStyle(buttonChild[$itemChild]);
+        let { width, height, margin, padding, border } = getComputedStyle(
+          buttonChild[$itemChild]
+        );
 
-        if (["x-icon", "x-swatch", "img", "svg"].includes(buttonChild[$itemChild].localName)) {
+        if (
+          ["x-icon", "x-swatch", "img", "svg"].includes(
+            buttonChild[$itemChild].localName
+          )
+        ) {
           buttonChild.style.width = width;
           buttonChild.style.height = height;
           buttonChild.style.minWidth = width;
@@ -368,12 +399,11 @@ export class XSelectElement extends HTMLElement {
     // Update "tabindex" attribute
     {
       if (this.disabled) {
-        this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+        this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
         this.tabIndex = -1;
-      }
-      else {
+      } else {
         if (this.tabIndex < 0) {
-          this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+          this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
         }
 
         delete this[$oldTabIndex];
@@ -403,7 +433,11 @@ export class XSelectElement extends HTMLElement {
 
   _onMutation(records) {
     for (let record of records) {
-      if (record.type === "attributes" && record.target.localName === "x-menuitem" && record.attributeName === "toggled") {
+      if (
+        record.type === "attributes" &&
+        record.target.localName === "x-menuitem" &&
+        record.attributeName === "toggled"
+      ) {
         this._updateButtonTh300();
       }
     }
@@ -423,8 +457,7 @@ export class XSelectElement extends HTMLElement {
 
     if (this._canExpand()) {
       this._expand();
-    }
-    else if (this._canCollapse()) {
+    } else if (this._canCollapse()) {
       let clickedItem = event.target.closest("x-menuitem");
 
       if (clickedItem) {
@@ -432,12 +465,17 @@ export class XSelectElement extends HTMLElement {
         let newValue = clickedItem.value;
 
         for (let item of this.querySelectorAll("x-menuitem")) {
-          item.toggled = (item === clickedItem);
+          item.toggled = item === clickedItem;
         }
 
         if (oldValue !== newValue || this.mixed) {
           this.mixed = false;
-          this.dispatchEvent(new CustomEvent("change", {bubbles: true, detail: {oldValue, newValue}}));
+          this.dispatchEvent(
+            new CustomEvent("change", {
+              bubbles: true,
+              detail: { oldValue, newValue },
+            })
+          );
         }
 
         this._collapse(clickedItem.whenTriggerEnd);
@@ -458,14 +496,17 @@ export class XSelectElement extends HTMLElement {
     if (event.defaultPrevented === false) {
       let menu = this.querySelector(":scope > x-menu");
 
-      if (event.key === "Enter" || event.key === "Space" || event.key === "ArrowUp" || event.key === "ArrowDown") {
+      if (
+        event.key === "Enter" ||
+        event.key === "Space" ||
+        event.key === "ArrowUp" ||
+        event.key === "ArrowDown"
+      ) {
         if (this._canExpand()) {
           event.preventDefault();
           this._expand();
         }
-      }
-
-      else if (event.key === "Escape") {
+      } else if (event.key === "Escape") {
         if (this._canCollapse()) {
           event.preventDefault();
           this._collapse();

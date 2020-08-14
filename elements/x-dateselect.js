@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
 let $oldTabIndex = Symbol();
 
@@ -147,8 +146,7 @@ export class XDateSelectElement extends HTMLElement {
 
       if (this.validation === "instant") {
         this.validate();
-      }
-      else if (this.validation === "auto" || this.validation === "manual") {
+      } else if (this.validation === "auto" || this.validation === "manual") {
         if (this.error !== null) {
           this.validate();
         }
@@ -191,7 +189,9 @@ export class XDateSelectElement extends HTMLElement {
     return this.hasAttribute("required");
   }
   set required(required) {
-    required ? this.setAttribute("required", "") : this.removeAttribute("required");
+    required
+      ? this.setAttribute("required", "")
+      : this.removeAttribute("required");
   }
 
   // @type
@@ -203,7 +203,9 @@ export class XDateSelectElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   // @info
@@ -215,7 +217,9 @@ export class XDateSelectElement extends HTMLElement {
   // @default
   //   "auto"
   get validation() {
-    return this.hasAttribute("validation") ? this.getAttribute("validation") : "auto";
+    return this.hasAttribute("validation")
+      ? this.getAttribute("validation")
+      : "auto";
   }
   set validation(validation) {
     this.setAttribute("validation", validation);
@@ -230,7 +234,9 @@ export class XDateSelectElement extends HTMLElement {
     return this.getAttribute("error");
   }
   set error(error) {
-    error === null ? this.removeAttribute("error") : this.setAttribute("error", error);
+    error === null
+      ? this.removeAttribute("error")
+      : this.setAttribute("error", error);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +244,10 @@ export class XDateSelectElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
+    this._shadowRoot = this.attachShadow({
+      mide: "open",
+      delegatesFocus: true,
+    });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -249,8 +258,12 @@ export class XDateSelectElement extends HTMLElement {
     this.addEventListener("focusout", (event) => this._onFocusOut(event));
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
 
-    this["#input"].addEventListener("change", (event) => this._onInputChange(event));
-    this["#input"].addEventListener("input", (event) => this._onInputInput(event));
+    this["#input"].addEventListener("change", (event) =>
+      this._onInputChange(event)
+    );
+    this["#input"].addEventListener("input", (event) =>
+      this._onInputInput(event)
+    );
   }
 
   connectedCallback() {
@@ -259,8 +272,7 @@ export class XDateSelectElement extends HTMLElement {
 
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -270,17 +282,13 @@ export class XDateSelectElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "min") {
+    } else if (name === "min") {
       this._onMinAttributeChange();
-    }
-    else if (name === "max") {
+    } else if (name === "max") {
       this._onMaxAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
-    }
-    else if (name === "validation") {
+    } else if (name === "validation") {
       this._onValidationAttributeChnage();
     }
   }
@@ -292,14 +300,11 @@ export class XDateSelectElement extends HTMLElement {
   validate() {
     if (this.value && this.min && this.value < this.min) {
       this.error = "Entered date is before the minimum date";
-    }
-    else if (this.value && this.max && this.value > this.max) {
+    } else if (this.value && this.max && this.value > this.max) {
       this.error = "Entered date is after the maximum date";
-    }
-    else if (this.required && this.value.length === 0) {
+    } else if (this.required && this.value.length === 0) {
       this.error = "This field is required";
-    }
-    else {
+    } else {
       this.error = null;
     }
   }
@@ -318,8 +323,7 @@ export class XDateSelectElement extends HTMLElement {
   _updateEmptyState() {
     if (this.value.length === 0) {
       this.setAttribute("empty", "");
-    }
-    else {
+    } else {
       this.removeAttribute("empty");
     }
   }
@@ -329,12 +333,11 @@ export class XDateSelectElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -367,8 +370,7 @@ export class XDateSelectElement extends HTMLElement {
   _onValidationAttributeChnage() {
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -376,11 +378,15 @@ export class XDateSelectElement extends HTMLElement {
   }
 
   _onFocusIn() {
-    this.dispatchEvent(new CustomEvent("textinputmodestart", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodestart", { bubbles: true, composed: true })
+    );
   }
 
   _onFocusOut() {
-    this.dispatchEvent(new CustomEvent("textinputmodeend", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodeend", { bubbles: true, composed: true })
+    );
 
     if (this.validation === "auto") {
       this.validate();
@@ -393,8 +399,7 @@ export class XDateSelectElement extends HTMLElement {
 
       if (this.validation === "instant") {
         this.validate();
-      }
-      else if (this.validation === "auto" || this.validation === "manual") {
+      } else if (this.validation === "auto" || this.validation === "manual") {
         if (this.error !== null) {
           this.validate();
         }
@@ -405,8 +410,7 @@ export class XDateSelectElement extends HTMLElement {
   _onInputInput(event) {
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -414,12 +418,12 @@ export class XDateSelectElement extends HTMLElement {
 
     event.stopPropagation();
     this._updateEmptyState();
-    this.dispatchEvent(new CustomEvent("input", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("input", { bubbles: true }));
   }
 
   _onInputChange() {
     this.validate();
-    this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
   }
 }
 

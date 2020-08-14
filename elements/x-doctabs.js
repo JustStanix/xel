@@ -1,13 +1,12 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
-import {getDistanceBetweenPoints} from "../utils/math.js";
-import {sleep} from "../utils/time.js";
+import { html } from "../utils/element.js";
+import { getDistanceBetweenPoints } from "../utils/math.js";
+import { sleep } from "../utils/time.js";
 
-let {abs} = Math;
-let {parseInt} = Number;
+let { abs } = Math;
+let { parseInt } = Number;
 
 let shadowTemplate = html`
   <template>
@@ -98,7 +97,9 @@ export class XDocTabsElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled === true ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled === true
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   // @info
@@ -109,7 +110,9 @@ export class XDocTabsElement extends HTMLElement {
   //   20
   // @attribute
   get maxTabs() {
-    return this.hasAttribute("maxtabs") ? parseInt(this.getAttribute("maxtabs")) : 20;
+    return this.hasAttribute("maxtabs")
+      ? parseInt(this.getAttribute("maxtabs"))
+      : 20;
   }
   set maxTabs(maxTabs) {
     this.setAttribute("maxtabs", maxTabs);
@@ -123,7 +126,10 @@ export class XDocTabsElement extends HTMLElement {
     this._waitingForTabToClose = false;
     this._waitingForPointerMoveAfterClosingTab = false;
 
-    this._shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
+    this._shadowRoot = this.attachShadow({
+      mide: "open",
+      delegatesFocus: true,
+    });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -131,20 +137,21 @@ export class XDocTabsElement extends HTMLElement {
     }
 
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
-    this["#open-button"].addEventListener("click", (event) => this._onOpenButtonClick(event));
+    this["#open-button"].addEventListener("click", (event) =>
+      this._onOpenButtonClick(event)
+    );
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   openTab(tab, animate = true) {
-    return new Promise( async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let tabs = this.querySelectorAll("x-doctab");
 
       if (tabs.length >= this.maxTabs) {
         reject(`Can't open more than ${this.maxTabs} tabs.`);
-      }
-      else {
+      } else {
         let maxOrder = 0;
 
         for (let tab of this.children) {
@@ -164,8 +171,7 @@ export class XDocTabsElement extends HTMLElement {
           this.append(tab);
           tab.focus();
           resolve(tab);
-        }
-        else if (animate === true) {
+        } else if (animate === true) {
           tab.style.transition = null;
           tab.style.maxWidth = "0px";
           tab.style.padding = "0px";
@@ -174,10 +180,14 @@ export class XDocTabsElement extends HTMLElement {
           this.append(tab);
           await sleep(30);
 
-          tab.addEventListener("transitionend", () => {
-            tab.removeAttribute("opening");
-            resolve(tab);
-          }, {once: true});
+          tab.addEventListener(
+            "transitionend",
+            () => {
+              tab.removeAttribute("opening");
+              resolve(tab);
+            },
+            { once: true }
+          );
 
           tab.style.maxWidth = null;
           tab.style.padding = null;
@@ -188,10 +198,12 @@ export class XDocTabsElement extends HTMLElement {
   }
 
   closeTab(tab, animate = true) {
-    return new Promise( async (resolve) => {
-      let tabs = this.getTabsByScreenIndex().filter(tab => tab.hasAttribute("closing") === false);
+    return new Promise(async (resolve) => {
+      let tabs = this.getTabsByScreenIndex().filter(
+        (tab) => tab.hasAttribute("closing") === false
+      );
       let tabWidth = tab.getBoundingClientRect().width;
-      let tabScreenIndex = this._getTabScreenIndex(tab)
+      let tabScreenIndex = this._getTabScreenIndex(tab);
 
       tab.setAttribute("closing", "");
 
@@ -206,8 +218,7 @@ export class XDocTabsElement extends HTMLElement {
 
       if (animate) {
         tab.style.transition = null;
-      }
-      else {
+      } else {
         tab.style.transition = "none";
       }
 
@@ -224,8 +235,7 @@ export class XDocTabsElement extends HTMLElement {
 
         if (nextTab) {
           nextTab.selected = true;
-        }
-        else if (previousTab) {
+        } else if (previousTab) {
           previousTab.selected = true;
         }
       }
@@ -235,8 +245,7 @@ export class XDocTabsElement extends HTMLElement {
 
         if (selectedTab) {
           selectedTab.focus();
-        }
-        else {
+        } else {
           this.focus();
         }
       }
@@ -270,7 +279,9 @@ export class XDocTabsElement extends HTMLElement {
 
   selectPreviousTab() {
     let tabs = this.getTabsByScreenIndex();
-    let currentTab = this.querySelector(`x-doctab[selected]`) || this.querySelector("x-doctab");
+    let currentTab =
+      this.querySelector(`x-doctab[selected]`) ||
+      this.querySelector("x-doctab");
     let previousTab = this._getPreviousTabOnScreen(currentTab);
 
     if (currentTab && previousTab) {
@@ -284,7 +295,9 @@ export class XDocTabsElement extends HTMLElement {
 
   selectNextTab() {
     let tabs = this.getTabsByScreenIndex();
-    let currentTab = this.querySelector(`x-doctab[selected]`) || this.querySelector("x-doctab:last-of-type");
+    let currentTab =
+      this.querySelector(`x-doctab[selected]`) ||
+      this.querySelector("x-doctab:last-of-type");
     let nextTab = this._getNextTabOnScreen(currentTab);
 
     if (currentTab && nextTab) {
@@ -297,7 +310,9 @@ export class XDocTabsElement extends HTMLElement {
   }
 
   selectTab(nextTab) {
-    let currentTab = this.querySelector(`x-doctab[selected]`) || this.querySelector("x-doctab:last-of-type");
+    let currentTab =
+      this.querySelector(`x-doctab[selected]`) ||
+      this.querySelector("x-doctab:last-of-type");
 
     if (currentTab) {
       currentTab.tabIndex = -1;
@@ -320,13 +335,11 @@ export class XDocTabsElement extends HTMLElement {
       for (let tab of this.children) {
         if (tab === selectedTab) {
           tab.style.order = this.childElementCount - 1;
-        }
-        else {
+        } else {
           tab.style.order = parseInt(tab.style.order) - 1;
         }
       }
-    }
-    else {
+    } else {
       let otherTab = this._getTabWithScreenIndex(selectedTabScreenIndex - 1);
       otherTab.style.order = parseInt(otherTab.style.order) + 1;
       selectedTab.style.order = parseInt(selectedTab.style.order) - 1;
@@ -345,13 +358,11 @@ export class XDocTabsElement extends HTMLElement {
       for (let tab of this.children) {
         if (tab === selectedTab) {
           tab.style.order = 0;
-        }
-        else {
+        } else {
           tab.style.order = parseInt(tab.style.order) + 1;
         }
       }
-    }
-    else {
+    } else {
       let otherTab = this._getTabWithScreenIndex(selectedTabScreenIndex + 1);
       otherTab.style.order = parseInt(otherTab.style.order) - 1;
       selectedTab.style.order = parseInt(selectedTab.style.order) + 1;
@@ -375,31 +386,39 @@ export class XDocTabsElement extends HTMLElement {
         window.removeEventListener("blur", blurListener);
       };
 
-      window.addEventListener("pointermove", pointerMoveListener = (event) => {
-        if (fromPoint === null) {
-          fromPoint = {x: event.clientX, y: event.clientY};
-        }
-        else {
-          let toPoint = {x: event.clientX, y: event.clientY};
+      window.addEventListener(
+        "pointermove",
+        (pointerMoveListener = (event) => {
+          if (fromPoint === null) {
+            fromPoint = { x: event.clientX, y: event.clientY };
+          } else {
+            let toPoint = { x: event.clientX, y: event.clientY };
 
-          if (getDistanceBetweenPoints(fromPoint, toPoint) >= distance) {
+            if (getDistanceBetweenPoints(fromPoint, toPoint) >= distance) {
+              removeListeners();
+              resolve();
+            }
+          }
+        })
+      );
+
+      window.addEventListener(
+        "pointerout",
+        (pointerOutListener = (event) => {
+          if (event.toElement === null) {
             removeListeners();
             resolve();
           }
-        }
-      });
+        })
+      );
 
-      window.addEventListener("pointerout", pointerOutListener = (event) => {
-        if (event.toElement === null) {
+      window.addEventListener(
+        "blur",
+        (blurListener = () => {
           removeListeners();
           resolve();
-        }
-      });
-
-      window.addEventListener("blur", blurListener = () => {
-        removeListeners();
-        resolve();
-      });
+        })
+      );
     });
   }
 
@@ -415,8 +434,14 @@ export class XDocTabsElement extends HTMLElement {
       startBBox.width = 0;
     }
 
-    this["#selection-indicator"].style.height = computedStyle.getPropertyValue("--selection-indicator-height");
-    this["#selection-indicator"].style.background = computedStyle.getPropertyValue("--selection-indicator-color");
+    this["#selection-indicator"].style.height = computedStyle.getPropertyValue(
+      "--selection-indicator-height"
+    );
+    this[
+      "#selection-indicator"
+    ].style.background = computedStyle.getPropertyValue(
+      "--selection-indicator-color"
+    );
     this["#selection-indicator"].hidden = false;
 
     this.setAttribute("animatingindicator", "");
@@ -424,21 +449,21 @@ export class XDocTabsElement extends HTMLElement {
     let animation = this["#selection-indicator"].animate(
       [
         {
-          bottom: (startBBox.bottom - mainBBox.bottom) + "px",
-          left: (startBBox.left - mainBBox.left) + "px",
+          bottom: startBBox.bottom - mainBBox.bottom + "px",
+          left: startBBox.left - mainBBox.left + "px",
           width: startBBox.width + "px",
         },
         {
-          bottom: (endBBox.bottom - mainBBox.bottom) + "px",
-          left: (endBBox.left - mainBBox.left) + "px",
+          bottom: endBBox.bottom - mainBBox.bottom + "px",
+          left: endBBox.left - mainBBox.left + "px",
           width: endBBox.width + "px",
-        }
+        },
       ],
       {
         duration: 200,
         iterations: 1,
         delay: 0,
-        easing: "cubic-bezier(0.4, 0.0, 0.2, 1)"
+        easing: "cubic-bezier(0.4, 0.0, 0.2, 1)",
       }
     );
 
@@ -457,7 +482,9 @@ export class XDocTabsElement extends HTMLElement {
       tab[$screenIndex] = this._getTabScreenIndex(tab);
     }
 
-    return [...this.children].sort((tab1, tab2) => tab1[$screenIndex] > tab2[$screenIndex]);
+    return [...this.children].sort(
+      (tab1, tab2) => tab1[$screenIndex] > tab2[$screenIndex]
+    );
   }
 
   _getTabScreenIndex(tab) {
@@ -466,21 +493,20 @@ export class XDocTabsElement extends HTMLElement {
 
     if (tabBounds.left - tabsBounds.left < tabBounds.width / 2) {
       return 0;
-    }
-    else {
-      let offset = (tabBounds.width / 2);
+    } else {
+      let offset = tabBounds.width / 2;
 
       for (let i = 1; i < this.maxTabs; i += 1) {
-        if (tabBounds.left - tabsBounds.left >= offset &&
-            tabBounds.left - tabsBounds.left < offset + tabBounds.width) {
+        if (
+          tabBounds.left - tabsBounds.left >= offset &&
+          tabBounds.left - tabsBounds.left < offset + tabBounds.width
+        ) {
           if (i > this.childElementCount - 1) {
             return this.childElementCount - 1;
-          }
-          else {
+          } else {
             return i;
           }
-        }
-        else {
+        } else {
           offset += tabBounds.width;
         }
       }
@@ -507,8 +533,7 @@ export class XDocTabsElement extends HTMLElement {
 
       if (skipDisabled && tab.disabled) {
         continue;
-      }
-      else {
+      } else {
         previousTab = tab;
         break;
       }
@@ -521,8 +546,7 @@ export class XDocTabsElement extends HTMLElement {
 
           if (skipDisabled && tab.disabled) {
             continue;
-          }
-          else {
+          } else {
             previousTab = tab;
             break;
           }
@@ -545,8 +569,7 @@ export class XDocTabsElement extends HTMLElement {
 
       if (skipDisabled && tab.disabled) {
         continue;
-      }
-      else {
+      } else {
         nextTab = tab;
         break;
       }
@@ -559,8 +582,7 @@ export class XDocTabsElement extends HTMLElement {
 
           if (skipDisabled && tab.disabled) {
             continue;
-          }
-          else {
+          } else {
             nextTab = tab;
             break;
           }
@@ -574,7 +596,11 @@ export class XDocTabsElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   _onPointerDown(event) {
-    if (event.buttons === 1 && !this._waitingForTabToClose && event.target.closest("x-doctab")) {
+    if (
+      event.buttons === 1 &&
+      !this._waitingForTabToClose &&
+      event.target.closest("x-doctab")
+    ) {
       this._onTabPointerDown(event);
     }
   }
@@ -590,33 +616,56 @@ export class XDocTabsElement extends HTMLElement {
 
     this.selectTab(pointerDownTab);
     if (selectedTab != pointerDownTab) {
-      this.dispatchEvent(new CustomEvent("select", {detail: pointerDownTab}));
+      this.dispatchEvent(new CustomEvent("select", { detail: pointerDownTab }));
     }
 
-    let selectionIndicatorAnimation = this._animateSelectionIndicator(selectedTab, pointerDownTab);
+    let selectionIndicatorAnimation = this._animateSelectionIndicator(
+      selectedTab,
+      pointerDownTab
+    );
     this.setPointerCapture(pointerDownEvent.pointerId);
 
-    let pointerDownPoint = new DOMPoint(pointerDownEvent.clientX, pointerDownEvent.clientY);
+    let pointerDownPoint = new DOMPoint(
+      pointerDownEvent.clientX,
+      pointerDownEvent.clientY
+    );
     let prevPointerMovePoint = pointerDownPoint;
 
-    this.addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      let pointerMovePoint = new DOMPoint(pointerMoveEvent.clientX, pointerMoveEvent.clientY);
-      let deltaTime = pointerMoveEvent.timeStamp - pointerDownEvent.timeStamp;
-      let isIntentional = (getDistanceBetweenPoints(pointerDownPoint, pointerMovePoint) > 3 || deltaTime > 80);
+    this.addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        let pointerMovePoint = new DOMPoint(
+          pointerMoveEvent.clientX,
+          pointerMoveEvent.clientY
+        );
+        let deltaTime = pointerMoveEvent.timeStamp - pointerDownEvent.timeStamp;
+        let isIntentional =
+          getDistanceBetweenPoints(pointerDownPoint, pointerMovePoint) > 3 ||
+          deltaTime > 80;
 
-      if (pointerMoveEvent.isPrimary && isIntentional) {
+        if (pointerMoveEvent.isPrimary && isIntentional) {
+          this.removeEventListener("pointermove", pointerMoveListener);
+          this.removeEventListener(
+            "lostpointercapture",
+            lostPointerCaptureListener
+          );
+
+          selectionIndicatorAnimation.finish();
+          this._onTabDragStart(pointerDownEvent, pointerDownTab);
+        }
+      })
+    );
+
+    this.addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
         this.removeEventListener("pointermove", pointerMoveListener);
-        this.removeEventListener("lostpointercapture", lostPointerCaptureListener);
-
-        selectionIndicatorAnimation.finish();
-        this._onTabDragStart(pointerDownEvent, pointerDownTab);
-      }
-    });
-
-    this.addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this.removeEventListener("pointermove", pointerMoveListener);
-      this.removeEventListener("lostpointercapture", lostPointerCaptureListener);
-    });
+        this.removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+      })
+    );
   }
 
   _onTabDragStart(firstPointerMoveEvent, draggedTab) {
@@ -646,13 +695,11 @@ export class XDocTabsElement extends HTMLElement {
         for (let i = fromScreenIndex; i < toScreenIndex; i += 1) {
           onDraggedTabScreenIndexChange(i, i + 1);
         }
-      }
-      else if (toScreenIndex < fromScreenIndex - 1) {
+      } else if (toScreenIndex < fromScreenIndex - 1) {
         for (let i = fromScreenIndex; i > toScreenIndex; i -= 1) {
           onDraggedTabScreenIndexChange(i, i - 1);
         }
-      }
-      else {
+      } else {
         for (let tab of this.children) {
           if (tab !== draggedTab) {
             if (tab[$screenIndex] === toScreenIndex) {
@@ -667,8 +714,7 @@ export class XDocTabsElement extends HTMLElement {
 
             if (translateX === 0) {
               tab.style.transform = null;
-            }
-            else {
+            } else {
               tab.style.transform = "translate(" + translateX + "px)";
             }
           }
@@ -678,13 +724,17 @@ export class XDocTabsElement extends HTMLElement {
 
     let pointerMoveListener = (pointerMoveEvent) => {
       if (pointerMoveEvent.isPrimary) {
-        let dragOffset = pointerMoveEvent.clientX - firstPointerMoveEvent.clientX;
+        let dragOffset =
+          pointerMoveEvent.clientX - firstPointerMoveEvent.clientX;
 
         if (dragOffset + draggedTab[$flexOffset] <= 0) {
           dragOffset = -draggedTab[$flexOffset];
-        }
-        else if (dragOffset + draggedTab[$flexOffset] + tabBounds.width > tabsBounds.width) {
-          dragOffset = tabsBounds.width - draggedTab[$flexOffset] - tabBounds.width;
+        } else if (
+          dragOffset + draggedTab[$flexOffset] + tabBounds.width >
+          tabsBounds.width
+        ) {
+          dragOffset =
+            tabsBounds.width - draggedTab[$flexOffset] - tabBounds.width;
         }
 
         draggedTab.style.transform = "translate(" + dragOffset + "px)";
@@ -693,14 +743,20 @@ export class XDocTabsElement extends HTMLElement {
         if (screenIndex !== draggedTab[$screenIndex]) {
           let previousTabScreenIndex = draggedTab[$screenIndex];
           draggedTab[$screenIndex] = screenIndex;
-          onDraggedTabScreenIndexChange(previousTabScreenIndex, draggedTab[$screenIndex]);
+          onDraggedTabScreenIndexChange(
+            previousTabScreenIndex,
+            draggedTab[$screenIndex]
+          );
         }
       }
     };
 
     let lostPointerCaptureListener = async (dragEndEvent) => {
       this.removeEventListener("pointermove", pointerMoveListener);
-      this.removeEventListener("lostpointercapture", lostPointerCaptureListener);
+      this.removeEventListener(
+        "lostpointercapture",
+        lostPointerCaptureListener
+      );
 
       let translateX = -draggedTab[$flexOffset];
 
@@ -708,13 +764,12 @@ export class XDocTabsElement extends HTMLElement {
         translateX += tabBounds.width;
       }
 
-      draggedTab.style.transition = "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)";
+      draggedTab.style.transition =
+        "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)";
       draggedTab.style.transform = "translate(" + translateX + "px)";
 
       if (draggedTab[$initialScreenIndex] !== draggedTab[$screenIndex]) {
-        this.dispatchEvent(
-          new CustomEvent("rearrange")
-        );
+        this.dispatchEvent(new CustomEvent("rearrange"));
       }
 
       await sleep(150);
@@ -735,7 +790,7 @@ export class XDocTabsElement extends HTMLElement {
 
   _onOpenButtonClick(clickEvent) {
     if (clickEvent.button === 0) {
-      let customEvent = new CustomEvent("open", {cancelable: true});
+      let customEvent = new CustomEvent("open", { cancelable: true });
       this.dispatchEvent(customEvent);
 
       if (customEvent.defaultPrevented === false) {
@@ -751,9 +806,7 @@ export class XDocTabsElement extends HTMLElement {
   _onKeyDown(event) {
     if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
       return;
-    }
-
-    else if (event.code === "Enter" || event.code === "Space") {
+    } else if (event.code === "Enter" || event.code === "Space") {
       let currentTab = this.querySelector(`x-doctab[tabindex="0"]`);
       let selectedTab = this.querySelector(`x-doctab[selected]`);
 
@@ -764,9 +817,7 @@ export class XDocTabsElement extends HTMLElement {
         this.selectTab(currentTab);
         this._animateSelectionIndicator(selectedTab, currentTab);
       }
-    }
-
-    else if (event.code === "ArrowLeft") {
+    } else if (event.code === "ArrowLeft") {
       let tabs = this.getTabsByScreenIndex();
       let currentTab = this.querySelector(`x-doctab[tabindex="0"]`);
       let previousTab = this._getPreviousTabOnScreen(currentTab);
@@ -778,9 +829,7 @@ export class XDocTabsElement extends HTMLElement {
         previousTab.tabIndex = 0;
         previousTab.focus();
       }
-    }
-
-    else if (event.code === "ArrowRight") {
+    } else if (event.code === "ArrowRight") {
       let tabs = this.getTabsByScreenIndex();
       let currentTab = this.querySelector(`x-doctab[tabindex="0"]`);
       let nextTab = this._getNextTabOnScreen(currentTab);
@@ -794,6 +843,6 @@ export class XDocTabsElement extends HTMLElement {
       }
     }
   }
-};
+}
 
 customElements.define("x-doctabs", XDocTabsElement);

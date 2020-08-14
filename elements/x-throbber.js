@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
 let shadowTemplate = html`
   <template>
@@ -148,7 +147,7 @@ export class XThrobberElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -163,8 +162,7 @@ export class XThrobberElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "type") {
+    } else if (name === "type") {
       this._update();
     }
   }
@@ -172,7 +170,8 @@ export class XThrobberElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   async _update() {
-    this["#main"].innerHTML = (this.type === "ring") ? ringThrobberSVG : spinThrobberSVG;
+    this["#main"].innerHTML =
+      this.type === "ring" ? ringThrobberSVG : spinThrobberSVG;
 
     if (this.hasAttribute("type") === false) {
       this.setAttribute("type", this.type);

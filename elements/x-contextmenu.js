@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {createElement, closest, html} from "../utils/element.js";
+import { createElement, closest, html } from "../utils/element.js";
 
 let debug = true;
 
@@ -32,7 +31,9 @@ export class XContextMenuElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,13 +43,17 @@ export class XContextMenuElement extends HTMLElement {
 
     this._parentElement = null;
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     this["#backdrop"] = createElement("x-backdrop");
-    this["#backdrop"].style.background =  "rgba(0, 0, 0, 0)";
-    this["#backdrop"].addEventListener("contextmenu", (event) => this._onBackdropContextMenu(event));
-    this["#backdrop"].addEventListener("pointerdown", (event) => this._onBackdropPointerDown(event));
+    this["#backdrop"].style.background = "rgba(0, 0, 0, 0)";
+    this["#backdrop"].addEventListener("contextmenu", (event) =>
+      this._onBackdropContextMenu(event)
+    );
+    this["#backdrop"].addEventListener("pointerdown", (event) =>
+      this._onBackdropPointerDown(event)
+    );
 
     window.addEventListener("blur", (event) => this._onBlur(event));
     this.addEventListener("blur", (event) => this._onBlur(event));
@@ -59,13 +64,19 @@ export class XContextMenuElement extends HTMLElement {
   connectedCallback() {
     this._parentElement = this.parentElement || this.parentNode.host;
 
-    this._parentElement.addEventListener("contextmenu", this._parentContextMenuListener = (event) => {
-      this._onParentContextMenu(event);
-    });
+    this._parentElement.addEventListener(
+      "contextmenu",
+      (this._parentContextMenuListener = (event) => {
+        this._onParentContextMenu(event);
+      })
+    );
   }
 
   disconnectedCallback() {
-    this._parentElement.removeEventListener("contextmenu", this._parentContextMenuListener);
+    this._parentElement.removeEventListener(
+      "contextmenu",
+      this._parentContextMenuListener
+    );
     this._parentElement = null;
   }
 
@@ -116,11 +127,13 @@ export class XContextMenuElement extends HTMLElement {
   }
 
   _onBackdropContextMenu(event) {
-    event.preventDefault()
+    event.preventDefault();
     event.stopImmediatePropagation();
 
     this.close().then(() => {
-      let target = this.parentElement.getRootNode().elementFromPoint(event.clientX, event.clientY);
+      let target = this.parentElement
+        .getRootNode()
+        .elementFromPoint(event.clientX, event.clientY);
 
       if (target && this.parentElement.contains(target)) {
         this.open(event.clientX, event.clientY);
@@ -144,16 +157,14 @@ export class XContextMenuElement extends HTMLElement {
       if (submenu) {
         if (submenu.opened) {
           submenu.close();
-        }
-        else {
+        } else {
           submenu.openNextToElement(item, "horizontal");
         }
-      }
-      else {
+      } else {
         this.setAttribute("closing", "");
 
         await item.whenTriggerEnd;
-        await this.close()
+        await this.close();
 
         this.removeAttribute("closing");
       }
@@ -168,9 +179,7 @@ export class XContextMenuElement extends HTMLElement {
         event.preventDefault();
         this.close();
       }
-    }
-
-    else if (event.key === "Tab") {
+    } else if (event.key === "Tab") {
       event.preventDefault();
       event.stopPropagation();
 

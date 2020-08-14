@@ -1,10 +1,9 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
-let $oldTabIndex = Symbol()
+let $oldTabIndex = Symbol();
 
 let shadowTemplate = html`
   <template>
@@ -16,13 +15,13 @@ let shadowTemplate = html`
         box-sizing: border-box;
         min-height: 24px;
         background: white;
-        border: 1px solid #BFBFBF;
+        border: 1px solid #bfbfbf;
         font-size: 12px;
         --close-button-path-d: path(
           "M 25 16 L 50 41 L 75 16 L 84 25 L 59 50 L 84 75 L 75 84 L 50 59 L 25 84 L 16 75 L 41 50 L 16 25 Z"
         );
         --selection-color: currentColor;
-        --selection-background: #B2D7FD;
+        --selection-background: #b2d7fd;
         --tag-background: rgba(0, 0, 0, 0.04);
         --tag-border: 1px solid #cccccc;
         --tag-color: currentColor;
@@ -141,17 +140,18 @@ export class XTagInputElement extends HTMLElement {
   // @attribute
   get value() {
     if (this.hasAttribute("value")) {
-      return this.getAttribute("value").split(this.delimiter).map($0 => $0.trim()).filter($0 => $0 !== "");
-    }
-    else {
+      return this.getAttribute("value")
+        .split(this.delimiter)
+        .map(($0) => $0.trim())
+        .filter(($0) => $0 !== "");
+    } else {
       return [];
     }
   }
   set value(value) {
     if (value.length === 0) {
       this.removeAttribute("value");
-    }
-    else {
+    } else {
       this.setAttribute("value", value.join(this.delimiter));
     }
   }
@@ -159,7 +159,9 @@ export class XTagInputElement extends HTMLElement {
   // @type
   //   string
   get delimiter() {
-    return this.hasAttribute("delimiter") ? this.getAttribute("delimiter") : ",";
+    return this.hasAttribute("delimiter")
+      ? this.getAttribute("delimiter")
+      : ",";
   }
   set delimiter(delimiter) {
     this.setAttribute("delimiter", delimiter);
@@ -174,7 +176,9 @@ export class XTagInputElement extends HTMLElement {
     return this.hasAttribute("spellcheck");
   }
   set spellcheck(spellcheck) {
-    spellcheck ? this.setAttribute("spellcheck", "") : this.removeAttribute("spellcheck");
+    spellcheck
+      ? this.setAttribute("spellcheck", "")
+      : this.removeAttribute("spellcheck");
   }
 
   // @type
@@ -183,7 +187,9 @@ export class XTagInputElement extends HTMLElement {
     return this.hasAttribute("prefix") ? this.getAttribute("prefix") : "";
   }
   set prefix(prefix) {
-    prefix === "" ? this.removeAttribute("prefix") : this.setAttribute("prefix", prefix);
+    prefix === ""
+      ? this.removeAttribute("prefix")
+      : this.setAttribute("prefix", prefix);
   }
 
   // @type
@@ -207,7 +213,9 @@ export class XTagInputElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +223,10 @@ export class XTagInputElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
+    this._shadowRoot = this.attachShadow({
+      mide: "open",
+      delegatesFocus: true,
+    });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -224,10 +235,18 @@ export class XTagInputElement extends HTMLElement {
 
     this.addEventListener("focusin", (event) => this._onFocusIn(event));
     this.addEventListener("focusout", (event) => this._onFocusOut(event));
-    this._shadowRoot.addEventListener("pointerdown", (event) => this._onShadowRootPointerDown(event));
-    this._shadowRoot.addEventListener("click", (event) => this._onShadowRootClick(event));
-    this["#editable-item"].addEventListener("keydown", (event) => this._onInputKeyDown(event));
-    this["#editable-item"].addEventListener("input", (event) => this._onInputInput(event));
+    this._shadowRoot.addEventListener("pointerdown", (event) =>
+      this._onShadowRootPointerDown(event)
+    );
+    this._shadowRoot.addEventListener("click", (event) =>
+      this._onShadowRootClick(event)
+    );
+    this["#editable-item"].addEventListener("keydown", (event) =>
+      this._onInputKeyDown(event)
+    );
+    this["#editable-item"].addEventListener("input", (event) =>
+      this._onInputInput(event)
+    );
   }
 
   connectedCallback() {
@@ -238,14 +257,11 @@ export class XTagInputElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "value") {
+    } else if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "spellcheck") {
+    } else if (name === "spellcheck") {
       this._onSpellcheckAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
     }
   }
@@ -267,7 +283,7 @@ export class XTagInputElement extends HTMLElement {
 
       if (tag.length > 0) {
         if (this.value.includes(tag) === false) {
-          let value = this.value.filter($0 => $0 !== tag);
+          let value = this.value.filter(($0) => $0 !== tag);
           this.value = [...value, tag];
           this.dispatchEvent(new CustomEvent("change"));
         }
@@ -285,12 +301,15 @@ export class XTagInputElement extends HTMLElement {
     }
 
     for (let tag of this.value) {
-      this["#editable-item"].insertAdjacentHTML("beforebegin", `
+      this["#editable-item"].insertAdjacentHTML(
+        "beforebegin",
+        `
         <div class="item" data-tag="${tag}">
           <label>${this.prefix}${tag}</label>
           <svg class="close-button" viewBox="0 0 100 100"><path class="close-button-path"></path></svg>
         </div>
-      `);
+      `
+      );
     }
 
     this._updatePlaceholderVisibility();
@@ -301,8 +320,7 @@ export class XTagInputElement extends HTMLElement {
 
     if (this.validateTag(tag) === true || tag.length === 0) {
       this.removeAttribute("error");
-    }
-    else {
+    } else {
       this.setAttribute("error", "");
     }
   }
@@ -311,7 +329,8 @@ export class XTagInputElement extends HTMLElement {
     let placeholder = this.querySelector(":scope > x-label");
 
     if (placeholder) {
-      placeholder.hidden = (this.value.length > 0 || this["#editable-item"].textContent.length > 0);
+      placeholder.hidden =
+        this.value.length > 0 || this["#editable-item"].textContent.length > 0;
     }
   }
 
@@ -320,12 +339,11 @@ export class XTagInputElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -347,13 +365,17 @@ export class XTagInputElement extends HTMLElement {
   }
 
   _onFocusIn() {
-    this.dispatchEvent(new CustomEvent("textinputmodestart", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodestart", { bubbles: true, composed: true })
+    );
   }
 
   _onFocusOut() {
     this._commitInput();
     this["#editable-item"].removeAttribute("contenteditable");
-    this.dispatchEvent(new CustomEvent("textinputmodeend", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodeend", { bubbles: true, composed: true })
+    );
 
     if (this.hasAttribute("error")) {
       this["#editable-item"].textContent = "";
@@ -374,9 +396,7 @@ export class XTagInputElement extends HTMLElement {
       let selection = window.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-    }
-
-    else if (event.target.matches(`.item, .item > *`)) {
+    } else if (event.target.matches(`.item, .item > *`)) {
       let item = event.target.closest(".item");
       let closeButton = event.target.closest(".close-button");
 
@@ -397,7 +417,9 @@ export class XTagInputElement extends HTMLElement {
 
   _onCloseButtonClick(event) {
     let item = event.target.closest(".item");
-    this.value = this.value.filter(tag => tag !== item.getAttribute("data-tag"));
+    this.value = this.value.filter(
+      (tag) => tag !== item.getAttribute("data-tag")
+    );
     this.dispatchEvent(new CustomEvent("change"));
   }
 
@@ -405,8 +427,7 @@ export class XTagInputElement extends HTMLElement {
     if (event.key === "Enter") {
       event.preventDefault();
       this._commitInput();
-    }
-    else if (event.key === "Backspace") {
+    } else if (event.key === "Backspace") {
       let value = this["#editable-item"].textContent;
 
       if (value.length === 0) {
@@ -431,6 +452,6 @@ export class XTagInputElement extends HTMLElement {
 
     this.dispatchEvent(new CustomEvent("input"));
   }
-};
+}
 
 customElements.define("x-taginput", XTagInputElement);

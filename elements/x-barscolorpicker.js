@@ -1,10 +1,9 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {parseColor, serializeColor} from "../utils/color.js";
-import {createElement} from "../utils/element.js";
-import {normalize} from "../utils/math.js";
+import { parseColor, serializeColor } from "../utils/color.js";
+import { createElement } from "../utils/element.js";
+import { normalize } from "../utils/math.js";
 
 let debug = false;
 
@@ -239,7 +238,9 @@ export class XBarsColorPickerElement extends HTMLElement {
   //   "hsla(0, 0%, 100%, 1)"
   // @attribute
   get value() {
-    return this.hasAttribute("value") ? this.getAttribute("value") : "hsla(0, 0%, 100%, 1)";
+    return this.hasAttribute("value")
+      ? this.getAttribute("value")
+      : "hsla(0, 0%, 100%, 1)";
   }
   set value(value) {
     this.setAttribute("value", value);
@@ -250,27 +251,35 @@ export class XBarsColorPickerElement extends HTMLElement {
   constructor() {
     super();
 
-    this._h = 0;  // Hue (0 ~ 360)
-    this._s = 0;  // Saturation (0 ~ 100)
+    this._h = 0; // Hue (0 ~ 360)
+    this._s = 0; // Saturation (0 ~ 100)
     this._l = 80; // Lightness (0 ~ 100)
-    this._a = 1;  // Alpha (0 ~ 1)
+    this._a = 1; // Alpha (0 ~ 1)
 
     this._isDraggingHueSliderMarker = false;
     this._isDraggingSaturationSliderMarker = false;
     this._isDraggingLightnessSliderMarker = false;
     this._isDraggingAlphaSliderMarker = false;
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mode: "open" });
     this._shadowRoot.innerHTML = shadowHTML;
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
       this["#" + element.id] = element;
     }
 
-    this["#hue-slider"].addEventListener("pointerdown", (event) => this._onHueSliderPointerDown(event));
-    this["#saturation-slider"].addEventListener("pointerdown", (event) => this._onSaturationSliderPointerDown(event));
-    this["#lightness-slider"].addEventListener("pointerdown", (event) => this._onLightnessSliderPointerDown(event));
-    this["#alpha-slider"].addEventListener("pointerdown", (event) => this._onAlphaSliderPointerDown(event));
+    this["#hue-slider"].addEventListener("pointerdown", (event) =>
+      this._onHueSliderPointerDown(event)
+    );
+    this["#saturation-slider"].addEventListener("pointerdown", (event) =>
+      this._onSaturationSliderPointerDown(event)
+    );
+    this["#lightness-slider"].addEventListener("pointerdown", (event) =>
+      this._onLightnessSliderPointerDown(event)
+    );
+    this["#alpha-slider"].addEventListener("pointerdown", (event) =>
+      this._onAlphaSliderPointerDown(event)
+    );
   }
 
   connectedCallback() {
@@ -280,8 +289,7 @@ export class XBarsColorPickerElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "value") {
+    } else if (name === "value") {
       this._onValueAttributeChange();
     }
   }
@@ -302,19 +310,23 @@ export class XBarsColorPickerElement extends HTMLElement {
   }
 
   _updateHueSliderMarker() {
-    this["#hue-slider-marker"].style.left = ((normalize(this._h, 0, 360, 0) / 360) * 100) + "%";
+    this["#hue-slider-marker"].style.left =
+      (normalize(this._h, 0, 360, 0) / 360) * 100 + "%";
   }
 
   _udpateSaturationSliderMarker() {
-    this["#saturation-slider-marker"].style.left = normalize(this._s, 0, 100, 2) + "%";
+    this["#saturation-slider-marker"].style.left =
+      normalize(this._s, 0, 100, 2) + "%";
   }
 
   _udpateLightnessSliderMarker() {
-    this["#lightness-slider-marker"].style.left = normalize(this._l, 0, 100, 2) + "%";
+    this["#lightness-slider-marker"].style.left =
+      normalize(this._l, 0, 100, 2) + "%";
   }
 
   _updateAlphaSliderMarker() {
-    this["#alpha-slider-marker"].style.left = normalize((1 - this._a) * 100, 0, 100, 2) + "%";
+    this["#alpha-slider-marker"].style.left =
+      normalize((1 - this._a) * 100, 0, 100, 2) + "%";
   }
 
   _udpateSaturationSliderBackground() {
@@ -337,7 +349,7 @@ export class XBarsColorPickerElement extends HTMLElement {
   _updateAlphaSliderBackground() {
     let h = this._h;
     let s = this._s;
-    let l = this._l
+    let l = this._l;
 
     this["#alpha-slider-gradient"].style.background = `
       linear-gradient(to right, hsla(${h}, ${s}%, ${l}%, 1), hsla(${h}, ${s}%, ${l}%, 0))
@@ -378,7 +390,7 @@ export class XBarsColorPickerElement extends HTMLElement {
 
     this._isDraggingHueSliderMarker = true;
     this["#hue-slider"].setPointerCapture(pointerDownEvent.pointerId);
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     let onPointerMove = (clientX) => {
       let h = ((clientX - trackBounds.x) / trackBounds.width) * 360;
@@ -386,30 +398,46 @@ export class XBarsColorPickerElement extends HTMLElement {
 
       if (h !== this._h) {
         this._h = h;
-        this.value = serializeColor([this._h, this._s, this._l, this._a], "hsla", "hsla");
+        this.value = serializeColor(
+          [this._h, this._s, this._l, this._a],
+          "hsla",
+          "hsla"
+        );
 
         this._updateHueSliderMarker();
         this._udpateSaturationSliderBackground();
         this._udpateLightnessSliderBackground();
         this._updateAlphaSliderBackground();
 
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
     onPointerMove(pointerDownEvent.clientX);
 
-    this["#hue-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX);
-    });
+    this["#hue-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX);
+      })
+    );
 
-    this["#hue-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this["#hue-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#hue-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
+    this["#hue-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this["#hue-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#hue-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
 
-      this._isDraggingHueSliderMarker = false;
-    });
+        this._isDraggingHueSliderMarker = false;
+      })
+    );
   }
 
   _onSaturationSliderPointerDown(pointerDownEvent) {
@@ -422,7 +450,7 @@ export class XBarsColorPickerElement extends HTMLElement {
 
     this._isDraggingSaturationSliderMarker = true;
     this["#saturation-slider"].setPointerCapture(pointerDownEvent.pointerId);
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     let onPointerMove = (clientX) => {
       let s = ((clientX - trackBounds.x) / trackBounds.width) * 100;
@@ -430,30 +458,46 @@ export class XBarsColorPickerElement extends HTMLElement {
 
       if (s !== this._s) {
         this._s = s;
-        this.value = serializeColor([this._h, this._s, this._l, this._a], "hsla", "hsla");
+        this.value = serializeColor(
+          [this._h, this._s, this._l, this._a],
+          "hsla",
+          "hsla"
+        );
 
         this._udpateSaturationSliderMarker();
         this._udpateSaturationSliderBackground();
         this._udpateLightnessSliderBackground();
         this._updateAlphaSliderBackground();
 
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
     onPointerMove(pointerDownEvent.clientX);
 
-    this["#saturation-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX);
-    });
+    this["#saturation-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX);
+      })
+    );
 
-    this["#saturation-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this["#saturation-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#saturation-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
+    this["#saturation-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this["#saturation-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#saturation-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
 
-      this._isDraggingSaturationSliderMarker = false;
-    });
+        this._isDraggingSaturationSliderMarker = false;
+      })
+    );
   }
 
   _onLightnessSliderPointerDown(pointerDownEvent) {
@@ -466,7 +510,7 @@ export class XBarsColorPickerElement extends HTMLElement {
 
     this._isDraggingLightnessSliderMarker = true;
     this["#lightness-slider"].setPointerCapture(pointerDownEvent.pointerId);
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     let onPointerMove = (clientX) => {
       let l = ((clientX - trackBounds.x) / trackBounds.width) * 100;
@@ -474,30 +518,46 @@ export class XBarsColorPickerElement extends HTMLElement {
 
       if (l !== this._l) {
         this._l = l;
-        this.value = serializeColor([this._h, this._s, this._l, this._a], "hsla", "hsla");
+        this.value = serializeColor(
+          [this._h, this._s, this._l, this._a],
+          "hsla",
+          "hsla"
+        );
 
         this._udpateLightnessSliderMarker();
         this._udpateSaturationSliderBackground();
         this._udpateLightnessSliderBackground();
         this._updateAlphaSliderBackground();
 
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
     onPointerMove(pointerDownEvent.clientX);
 
-    this["#lightness-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX);
-    });
+    this["#lightness-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX);
+      })
+    );
 
-    this["#lightness-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this["#lightness-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#lightness-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
+    this["#lightness-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this["#lightness-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#lightness-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
 
-      this._isDraggingLightnessSliderMarker = false;
-    });
+        this._isDraggingLightnessSliderMarker = false;
+      })
+    );
   }
 
   _onAlphaSliderPointerDown(pointerDownEvent) {
@@ -510,34 +570,50 @@ export class XBarsColorPickerElement extends HTMLElement {
 
     this._isDraggingAlphaSliderMarker = true;
     this["#alpha-slider"].setPointerCapture(pointerDownEvent.pointerId);
-    this.dispatchEvent(new CustomEvent("changestart", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("changestart", { bubbles: true }));
 
     let onPointerMove = (clientX) => {
-      let a = 1 - ((clientX - trackBounds.x) / trackBounds.width);
+      let a = 1 - (clientX - trackBounds.x) / trackBounds.width;
       a = normalize(a, 0, 1, 2);
 
       if (a !== this._a) {
         this._a = a;
-        this.value = serializeColor([this._h, this._s, this._l, this._a], "hsla", "hsla");
+        this.value = serializeColor(
+          [this._h, this._s, this._l, this._a],
+          "hsla",
+          "hsla"
+        );
         this._updateAlphaSliderMarker();
-        this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
       }
     };
 
     onPointerMove(pointerDownEvent.clientX);
 
-    this["#alpha-slider"].addEventListener("pointermove", pointerMoveListener = (pointerMoveEvent) => {
-      onPointerMove(pointerMoveEvent.clientX);
-    });
+    this["#alpha-slider"].addEventListener(
+      "pointermove",
+      (pointerMoveListener = (pointerMoveEvent) => {
+        onPointerMove(pointerMoveEvent.clientX);
+      })
+    );
 
-    this["#alpha-slider"].addEventListener("lostpointercapture", lostPointerCaptureListener = () => {
-      this["#alpha-slider"].removeEventListener("pointermove", pointerMoveListener);
-      this["#alpha-slider"].removeEventListener("lostpointercapture", lostPointerCaptureListener);
-      this.dispatchEvent(new CustomEvent("changeend", {bubbles: true}));
+    this["#alpha-slider"].addEventListener(
+      "lostpointercapture",
+      (lostPointerCaptureListener = () => {
+        this["#alpha-slider"].removeEventListener(
+          "pointermove",
+          pointerMoveListener
+        );
+        this["#alpha-slider"].removeEventListener(
+          "lostpointercapture",
+          lostPointerCaptureListener
+        );
+        this.dispatchEvent(new CustomEvent("changeend", { bubbles: true }));
 
-      this._isDraggingAlphaSliderMarker = false;
-    });
+        this._isDraggingAlphaSliderMarker = false;
+      })
+    );
   }
-};
+}
 
 customElements.define("x-barscolorpicker", XBarsColorPickerElement);

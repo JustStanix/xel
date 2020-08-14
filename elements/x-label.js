@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, generateUniqueID} from "../utils/element.js";
+import { html, generateUniqueID } from "../utils/element.js";
 
 let shadowTemplate = html`
   <template>
@@ -45,7 +44,9 @@ export class XLabelElement extends HTMLElement {
     return this.hasAttribute("value") ? this.getAttribute("value") : null;
   }
   set value(value) {
-    value === null ? this.removeAttribute("value") : this.setAttribute("value", value);
+    value === null
+      ? this.removeAttribute("value")
+      : this.setAttribute("value", value);
   }
 
   // @info
@@ -69,7 +70,9 @@ export class XLabelElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +80,7 @@ export class XLabelElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     this.addEventListener("click", (event) => this._onClick(event));
@@ -92,7 +95,11 @@ export class XLabelElement extends HTMLElement {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   _onClick(event) {
-    if (this.for && this.disabled === false && event.target.closest("a") === null) {
+    if (
+      this.for &&
+      this.disabled === false &&
+      event.target.closest("a") === null
+    ) {
       let target = this.getRootNode().querySelector("#" + CSS.escape(this.for));
 
       if (target) {
@@ -105,7 +112,7 @@ export class XLabelElement extends HTMLElement {
     let rootNode = this.getRootNode();
     let target = rootNode.querySelector("#" + CSS.escape(this.for));
 
-    if  (target) {
+    if (target) {
       if (!this.id) {
         this.id = generateUniqueID(rootNode, "label-");
       }

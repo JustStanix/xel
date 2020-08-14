@@ -1,4 +1,3 @@
-
 import "./runtime.js";
 import "./elements/x-accordion.js";
 import "./elements/x-backdrop.js";
@@ -38,6 +37,3 @@ import "./elements/x-taginput.js";
 import "./elements/x-textarea.js";
 import "./elements/x-throbber.js";
 import "./elements/x-wheelcolorpicker.js";
-import "./elements/xel-app.js";
-import "./elements/xel-codeview.js";
-import "./elements/xel-demo.js";

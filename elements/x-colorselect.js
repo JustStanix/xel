@@ -1,10 +1,13 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {createElement, closest, html} from "../utils/element.js";
-import {formatColorString, parseColor, serializeColor} from "../utils/color.js";
-import {debounce} from "../utils/time.js";
+import { createElement, closest, html } from "../utils/element.js";
+import {
+  formatColorString,
+  parseColor,
+  serializeColor,
+} from "../utils/color.js";
+import { debounce } from "../utils/time.js";
 
 let $oldTabIndex = Symbol();
 
@@ -93,7 +96,9 @@ export class XColorSelectElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,9 +107,13 @@ export class XColorSelectElement extends HTMLElement {
     super();
 
     this._inputChangeStarted = false;
-    this._onInputChangeDebouonced = debounce(this._onInputChangeDebouonced, 400, this);
+    this._onInputChangeDebouonced = debounce(
+      this._onInputChangeDebouonced,
+      400,
+      this
+    );
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.innerHTML = shadowHTML;
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -115,20 +124,23 @@ export class XColorSelectElement extends HTMLElement {
     this.addEventListener("keydown", (event) => this._onKeyDown(event));
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
     this.addEventListener("change", (event) => this._onChange(event));
-    this["#input"].addEventListener("change", (event) => this._onInputChange(event));
+    this["#input"].addEventListener("change", (event) =>
+      this._onInputChange(event)
+    );
   }
 
   attributeChangedCallback(name) {
     if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
     }
   }
 
   connectedCallback() {
-    let picker = this.querySelector("x-wheelcolorpicker, x-rectcolorpicker, x-barscolorpicker");
+    let picker = this.querySelector(
+      "x-wheelcolorpicker, x-rectcolorpicker, x-barscolorpicker"
+    );
 
     if (picker) {
       picker.setAttribute("value", formatColorString(this.value, "rgba"));
@@ -165,8 +177,7 @@ export class XColorSelectElement extends HTMLElement {
 
         if (this._wasFocusedBeforeExpanding) {
           this.focus();
-        }
-        else {
+        } else {
           let ancestorFocusableElement = closest(this.parentNode, "[tabindex]");
 
           if (ancestorFocusableElement) {
@@ -191,12 +202,11 @@ export class XColorSelectElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -210,7 +220,9 @@ export class XColorSelectElement extends HTMLElement {
       this._updateInput();
     }
 
-    let picker = [...this.querySelectorAll("*")].find(element => element.localName.endsWith("colorpicker"));
+    let picker = [...this.querySelectorAll("*")].find((element) =>
+      element.localName.endsWith("colorpicker")
+    );
 
     if (picker && picker.getAttribute("value") !== this.getAttribute("value")) {
       picker.setAttribute("value", this.getAttribute("value"));
@@ -231,11 +243,11 @@ export class XColorSelectElement extends HTMLElement {
   _onInputChange() {
     if (this._inputChangeStarted === false) {
       this._inputChangeStarted = true;
-      this.dispatchEvent(new CustomEvent("changestart"))
+      this.dispatchEvent(new CustomEvent("changestart"));
     }
 
     this.value = this["#input"].value;
-    this.dispatchEvent(new CustomEvent("change"))
+    this.dispatchEvent(new CustomEvent("change"));
     this._onInputChangeDebouonced();
   }
 
@@ -244,7 +256,7 @@ export class XColorSelectElement extends HTMLElement {
       this._inputChangeStarted = false;
 
       this.value = this["#input"].value;
-      this.dispatchEvent(new CustomEvent("changeend"))
+      this.dispatchEvent(new CustomEvent("changeend"));
     }
   }
 
@@ -262,13 +274,14 @@ export class XColorSelectElement extends HTMLElement {
         if (popover.modal === false && event.target === this) {
           event.preventDefault();
           this._collapse();
-        }
-        else if (popover.modal === true && event.target.localName === "x-backdrop") {
+        } else if (
+          popover.modal === true &&
+          event.target.localName === "x-backdrop"
+        ) {
           event.preventDefault();
           this._collapse();
         }
-      }
-      else {
+      } else {
         event.preventDefault();
         this._expand();
       }
@@ -285,17 +298,13 @@ export class XColorSelectElement extends HTMLElement {
       if (popover) {
         if (this.hasAttribute("expanded")) {
           this._collapse();
-        }
-        else {
+        } else {
           this._expand();
         }
-      }
-      else {
+      } else {
         this["#input"].click();
       }
-    }
-
-    else if (event.code === "Escape") {
+    } else if (event.code === "Escape") {
       let popover = this.querySelector("x-popover");
 
       if (popover) {
@@ -304,9 +313,7 @@ export class XColorSelectElement extends HTMLElement {
           this._collapse();
         }
       }
-    }
-
-    else if (event.code === "Tab") {
+    } else if (event.code === "Tab") {
       if (this.hasAttribute("expanded")) {
         event.preventDefault();
       }

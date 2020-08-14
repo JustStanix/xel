@@ -1,9 +1,8 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, createElement} from "../utils/element.js";
-import {roundRect} from "../utils/math.js";
+import { html, createElement } from "../utils/element.js";
+import { roundRect } from "../utils/math.js";
 
 let shadowTemplate = html`
   <template>
@@ -108,7 +107,7 @@ export class XPopoverElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mide: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -116,7 +115,7 @@ export class XPopoverElement extends HTMLElement {
     }
 
     this["#backdrop"] = createElement("x-backdrop");
-    this["#backdrop"].style.background =  "rgba(0, 0, 0, 0)";
+    this["#backdrop"].style.background = "rgba(0, 0, 0, 0)";
     this["#backdrop"].ownerElement = this;
 
     this["#backdrop"].addEventListener("click", (event) => {
@@ -139,12 +138,10 @@ export class XPopoverElement extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
-    }
-    else if (name === "modal") {
+    } else if (name === "modal") {
       if (this.modal && this.opened) {
         this["#backdrop"].show();
-      }
-      else {
+      } else {
         this["#backdrop"].hide();
       }
     }
@@ -158,7 +155,7 @@ export class XPopoverElement extends HTMLElement {
   // @type
   //  (DOMPoint || DOMRect || Element) => void
   open(context, animate = true) {
-    return new Promise( async (resolve) => {
+    return new Promise(async (resolve) => {
       if (this.opened === false) {
         if (this.modal) {
           this["#backdrop"].show(false);
@@ -168,26 +165,33 @@ export class XPopoverElement extends HTMLElement {
         this._updateStyle();
         this._updatePosition(context);
 
-        document.body.addEventListener("scroll", this._scrollListener = () => {
-          this._updatePosition(context);
-        });
+        document.body.addEventListener(
+          "scroll",
+          (this._scrollListener = () => {
+            this._updatePosition(context);
+          })
+        );
 
         if (animate) {
-          let transition = getComputedStyle(this).getPropertyValue("--open-transition");
+          let transition = getComputedStyle(this).getPropertyValue(
+            "--open-transition"
+          );
           let [property, duration, easing] = this._parseTransistion(transition);
 
           if (property === "transform") {
             await this.animate(
               {
                 transform: ["scale(1, 0)", "scale(1, 1)"],
-                transformOrigin: ["0 0", "0 0"]
+                transformOrigin: ["0 0", "0 0"],
               },
               { duration, easing }
             ).finished;
           }
         }
 
-        this.dispatchEvent(new CustomEvent("open", {bubbles: true, detail: this}));
+        this.dispatchEvent(
+          new CustomEvent("open", { bubbles: true, detail: this })
+        );
       }
 
       resolve();
@@ -204,17 +208,22 @@ export class XPopoverElement extends HTMLElement {
       if (this.opened === true) {
         this.removeAttribute("opened");
         this["#backdrop"].hide();
-        this.dispatchEvent(new CustomEvent("close", {bubbles: true, detail: this}));
+        this.dispatchEvent(
+          new CustomEvent("close", { bubbles: true, detail: this })
+        );
         document.body.removeEventListener("scroll", this._scrollListener);
 
         if (animate) {
-          let transition = getComputedStyle(this).getPropertyValue("--close-transition");
+          let transition = getComputedStyle(this).getPropertyValue(
+            "--close-transition"
+          );
           let [property, duration, easing] = this._parseTransistion(transition);
 
           this.setAttribute("animating", "");
 
           if (property === "opacity") {
-            await this.animate({ opacity: ["1", "0"] }, { duration, easing }).finished;
+            await this.animate({ opacity: ["1", "0"] }, { duration, easing })
+              .finished;
           }
 
           this.removeAttribute("animating");
@@ -232,10 +241,10 @@ export class XPopoverElement extends HTMLElement {
     let borderWidth = parseInt(getComputedStyle(this).borderWidth);
 
     let windowWhitespace = 8; // Minimal whitespace between popover and window bounds
-    let arrowWhitespace = 2;  // Minimal whitespace between popover and arrow
+    let arrowWhitespace = 2; // Minimal whitespace between popover and arrow
 
     let extraLeft = 0; // Extra offset needed when popover has fixed-positioned ancestor(s)
-    let extraTop = 0;  // Extra offset needed when popover has fixed-positioned ancestor(s)
+    let extraTop = 0; // Extra offset needed when popover has fixed-positioned ancestor(s)
     let contextRect = null; // Rect relative to which the popover should be positioned
 
     this.style.maxWidth = null;
@@ -254,14 +263,11 @@ export class XPopoverElement extends HTMLElement {
 
       if (context instanceof DOMPoint) {
         contextRect = new DOMRect(context.x, context.y, 0, 0);
-      }
-      else if (context instanceof DOMRect) {
+      } else if (context instanceof DOMRect) {
         contextRect = context;
-      }
-      else if (context instanceof Element) {
+      } else if (context instanceof Element) {
         contextRect = context.getBoundingClientRect();
-      }
-      else {
+      } else {
         contextRect = new DOMRect();
       }
     }
@@ -277,14 +283,25 @@ export class XPopoverElement extends HTMLElement {
           let arrowRect = roundRect(this["#arrow"].getBoundingClientRect());
           let bottomOverflow = 0;
 
-          this["#arrow"].style.top = (extraTop + contextRect.bottom + arrowWhitespace + borderWidth) + "px";
-          this.style.top = (extraTop + contextRect.bottom + arrowWhitespace + arrowRect.height) + "px";
+          this["#arrow"].style.top =
+            extraTop +
+            contextRect.bottom +
+            arrowWhitespace +
+            borderWidth +
+            "px";
+          this.style.top =
+            extraTop +
+            contextRect.bottom +
+            arrowWhitespace +
+            arrowRect.height +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
-          bottomOverflow = (popoverRect.bottom + windowWhitespace) - window.innerHeight;
+          bottomOverflow =
+            popoverRect.bottom + windowWhitespace - window.innerHeight;
 
           if (reduceHeight && bottomOverflow > 0) {
-            let maxHeight = (popoverRect.height - bottomOverflow);
+            let maxHeight = popoverRect.height - bottomOverflow;
             bottomOverflow = 0;
 
             this.style.maxHeight = maxHeight + "px";
@@ -301,8 +318,20 @@ export class XPopoverElement extends HTMLElement {
           let arrowRect = roundRect(this["#arrow"].getBoundingClientRect());
           let topOverflow = 0;
 
-          this["#arrow"].style.top = (extraTop + contextRect.top - arrowWhitespace - borderWidth - arrowRect.height) + "px";
-          this.style.top = (extraTop + contextRect.top - arrowWhitespace - arrowRect.height - popoverRect.height) + "px";
+          this["#arrow"].style.top =
+            extraTop +
+            contextRect.top -
+            arrowWhitespace -
+            borderWidth -
+            arrowRect.height +
+            "px";
+          this.style.top =
+            extraTop +
+            contextRect.top -
+            arrowWhitespace -
+            arrowRect.height -
+            popoverRect.height +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
           topOverflow = -(popoverRect.top - windowWhitespace);
@@ -312,11 +341,17 @@ export class XPopoverElement extends HTMLElement {
             topOverflow = 0;
 
             this.style.maxHeight = maxHeight + "px";
-            this.style.top = (extraTop + contextRect.top - arrowWhitespace - arrowRect.height - maxHeight) + "px";
+            this.style.top =
+              extraTop +
+              contextRect.top -
+              arrowWhitespace -
+              arrowRect.height -
+              maxHeight +
+              "px";
           }
 
           return topOverflow;
-        }
+        };
 
         let floatCenter = () => {
           this.style.maxWidth = null;
@@ -325,12 +360,19 @@ export class XPopoverElement extends HTMLElement {
           let leftOverflow = 0;
           let rightOverflow = 0;
 
-          this["#arrow"].style.left = (extraLeft + contextRect.left + contextRect.width/2) + "px";
-          this.style.left = (extraLeft + contextRect.left + contextRect.width/2 - popoverRect.width/2) + "px";
+          this["#arrow"].style.left =
+            extraLeft + contextRect.left + contextRect.width / 2 + "px";
+          this.style.left =
+            extraLeft +
+            contextRect.left +
+            contextRect.width / 2 -
+            popoverRect.width / 2 +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
           leftOverflow = -(popoverRect.left - windowWhitespace);
-          rightOverflow = popoverRect.right + windowWhitespace - window.innerWidth;
+          rightOverflow =
+            popoverRect.right + windowWhitespace - window.innerWidth;
 
           return [leftOverflow, rightOverflow];
         };
@@ -341,8 +383,14 @@ export class XPopoverElement extends HTMLElement {
           let popoverRect = roundRect(this.getBoundingClientRect());
           let leftOverflow = 0;
 
-          this["#arrow"].style.left = (extraLeft + contextRect.left + contextRect.width/2) + "px";
-          this.style.left = (extraLeft + window.innerWidth - windowWhitespace - popoverRect.width) + "px";
+          this["#arrow"].style.left =
+            extraLeft + contextRect.left + contextRect.width / 2 + "px";
+          this.style.left =
+            extraLeft +
+            window.innerWidth -
+            windowWhitespace -
+            popoverRect.width +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
           leftOverflow = -(popoverRect.left - windowWhitespace);
@@ -352,11 +400,16 @@ export class XPopoverElement extends HTMLElement {
             leftOverflow = 0;
 
             this.style.maxWidth = maxWidth + "px";
-            this.style.left = (extraLeft + window.innerWidth - windowWhitespace - maxWidth) + "px";
+            this.style.left =
+              extraLeft +
+              window.innerWidth -
+              windowWhitespace -
+              maxWidth +
+              "px";
           }
 
           return leftOverflow;
-        }
+        };
 
         let floatLeft = (reduceWidth = false) => {
           this.style.maxWidth = null;
@@ -364,11 +417,13 @@ export class XPopoverElement extends HTMLElement {
           let popoverRect = roundRect(this.getBoundingClientRect());
           let rightOverflow = 0;
 
-          this["#arrow"].style.left = (extraLeft + contextRect.left + contextRect.width/2) + "px";
-          this.style.left = (extraLeft + windowWhitespace) + "px";
+          this["#arrow"].style.left =
+            extraLeft + contextRect.left + contextRect.width / 2 + "px";
+          this.style.left = extraLeft + windowWhitespace + "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
-          rightOverflow = popoverRect.right + windowWhitespace - window.innerWidth;
+          rightOverflow =
+            popoverRect.right + windowWhitespace - window.innerWidth;
 
           if (reduceWidth && rightOverflow > 0) {
             let maxWidth = popoverRect.width - rightOverflow;
@@ -378,7 +433,7 @@ export class XPopoverElement extends HTMLElement {
           }
 
           return rightOverflow;
-        }
+        };
 
         // Vertical position
         {
@@ -391,14 +446,12 @@ export class XPopoverElement extends HTMLElement {
               if (topOverflow > 0) {
                 if (topOverflow > bottomOverflow) {
                   positionBottom(true);
-                }
-                else {
+                } else {
                   positionTop(true);
                 }
               }
             }
-          }
-          else if (align === "top") {
+          } else if (align === "top") {
             let topOverflow = positionTop();
 
             if (topOverflow > 0) {
@@ -407,8 +460,7 @@ export class XPopoverElement extends HTMLElement {
               if (bottomOverflow > 0) {
                 if (bottomOverflow > topOverflow) {
                   positionTop(true);
-                }
-                else {
+                } else {
                   positionBottom(true);
                 }
               }
@@ -426,8 +478,7 @@ export class XPopoverElement extends HTMLElement {
             if (leftOverflow > 0) {
               floatRight(true);
             }
-          }
-          else if (leftOverflow > 0) {
+          } else if (leftOverflow > 0) {
             rightOverflow = floatLeft();
 
             if (rightOverflow > 0) {
@@ -435,9 +486,7 @@ export class XPopoverElement extends HTMLElement {
             }
           }
         }
-      }
-
-      else if (align === "right" || align === "left") {
+      } else if (align === "right" || align === "left") {
         let positionRight = (reduceWidth = false) => {
           this.style.maxWidth = null;
           this["#arrow"].setAttribute("data-align", "right");
@@ -446,14 +495,25 @@ export class XPopoverElement extends HTMLElement {
           let arrowRect = roundRect(this["#arrow"].getBoundingClientRect());
           let rightOverflow = 0;
 
-          this["#arrow"].style.left = (extraLeft + contextRect.right + arrowWhitespace + borderWidth) + "px";
-          this.style.left = (extraLeft + contextRect.right + arrowWhitespace + arrowRect.width) + "px";
+          this["#arrow"].style.left =
+            extraLeft +
+            contextRect.right +
+            arrowWhitespace +
+            borderWidth +
+            "px";
+          this.style.left =
+            extraLeft +
+            contextRect.right +
+            arrowWhitespace +
+            arrowRect.width +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
-          rightOverflow = (popoverRect.right + windowWhitespace) - window.innerWidth;
+          rightOverflow =
+            popoverRect.right + windowWhitespace - window.innerWidth;
 
           if (reduceWidth && rightOverflow > 0) {
-            let maxWidth = (popoverRect.width - rightOverflow);
+            let maxWidth = popoverRect.width - rightOverflow;
             rightOverflow = 0;
 
             this.style.maxWidth = maxWidth + "px";
@@ -470,8 +530,20 @@ export class XPopoverElement extends HTMLElement {
           let arrowRect = roundRect(this["#arrow"].getBoundingClientRect());
           let leftOverflow = 0;
 
-          this["#arrow"].style.left = (extraLeft + contextRect.left - arrowWhitespace - borderWidth - arrowRect.width) + "px";
-          this.style.left = (extraLeft + contextRect.left - arrowWhitespace - arrowRect.width - popoverRect.width) + "px";
+          this["#arrow"].style.left =
+            extraLeft +
+            contextRect.left -
+            arrowWhitespace -
+            borderWidth -
+            arrowRect.width +
+            "px";
+          this.style.left =
+            extraLeft +
+            contextRect.left -
+            arrowWhitespace -
+            arrowRect.width -
+            popoverRect.width +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
           leftOverflow = -(popoverRect.left - windowWhitespace);
@@ -481,7 +553,13 @@ export class XPopoverElement extends HTMLElement {
             leftOverflow = 0;
 
             this.style.maxWidth = maxWidth + "px";
-            this.style.left = (extraLeft + contextRect.left - arrowWhitespace - arrowRect.width - maxWidth) + "px";
+            this.style.left =
+              extraLeft +
+              contextRect.left -
+              arrowWhitespace -
+              arrowRect.width -
+              maxWidth +
+              "px";
           }
 
           return leftOverflow;
@@ -494,12 +572,19 @@ export class XPopoverElement extends HTMLElement {
           let topOverflow = 0;
           let bottomOverflow = 0;
 
-          this["#arrow"].style.top = (extraTop + contextRect.top + contextRect.height/2) + "px";
-          this.style.top = (extraTop + contextRect.top + contextRect.height/2 - popoverRect.height/2) + "px";
+          this["#arrow"].style.top =
+            extraTop + contextRect.top + contextRect.height / 2 + "px";
+          this.style.top =
+            extraTop +
+            contextRect.top +
+            contextRect.height / 2 -
+            popoverRect.height / 2 +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
           topOverflow = -(popoverRect.top - windowWhitespace);
-          bottomOverflow = popoverRect.bottom + windowWhitespace - window.innerHeight;
+          bottomOverflow =
+            popoverRect.bottom + windowWhitespace - window.innerHeight;
 
           return [topOverflow, bottomOverflow];
         };
@@ -510,8 +595,14 @@ export class XPopoverElement extends HTMLElement {
           let popoverRect = roundRect(this.getBoundingClientRect());
           let topOverflow = 0;
 
-          this["#arrow"].style.top = (extraTop + contextRect.top + contextRect.height/2) + "px";
-          this.style.top = (extraTop + window.innerHeight - windowWhitespace - popoverRect.height) + "px";
+          this["#arrow"].style.top =
+            extraTop + contextRect.top + contextRect.height / 2 + "px";
+          this.style.top =
+            extraTop +
+            window.innerHeight -
+            windowWhitespace -
+            popoverRect.height +
+            "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
           topOverflow = -(popoverRect.top - windowWhitespace);
@@ -521,7 +612,12 @@ export class XPopoverElement extends HTMLElement {
             topOverflow = 0;
 
             this.style.maxHeight = maxHeight + "px";
-            this.style.top = (extraTop + window.innerHeight - windowWhitespace - maxHeight) + "px";
+            this.style.top =
+              extraTop +
+              window.innerHeight -
+              windowWhitespace -
+              maxHeight +
+              "px";
           }
 
           return topOverflow;
@@ -533,11 +629,13 @@ export class XPopoverElement extends HTMLElement {
           let popoverRect = roundRect(this.getBoundingClientRect());
           let bottomOverflow = 0;
 
-          this["#arrow"].style.top = (extraTop + contextRect.top + contextRect.height/2) + "px";
-          this.style.top = (extraTop + windowWhitespace) + "px";
+          this["#arrow"].style.top =
+            extraTop + contextRect.top + contextRect.height / 2 + "px";
+          this.style.top = extraTop + windowWhitespace + "px";
 
           popoverRect = roundRect(this.getBoundingClientRect());
-          bottomOverflow = popoverRect.bottom + windowWhitespace - window.innerHeight;
+          bottomOverflow =
+            popoverRect.bottom + windowWhitespace - window.innerHeight;
 
           if (reduceHeight && bottomOverflow > 0) {
             let maxHeight = popoverRect.height - bottomOverflow;
@@ -560,14 +658,12 @@ export class XPopoverElement extends HTMLElement {
               if (leftOverflow > 0) {
                 if (leftOverflow > rightOverflow) {
                   positionRight(true);
-                }
-                else {
+                } else {
                   positionLeft(true);
                 }
               }
             }
-          }
-          else if (align === "left") {
+          } else if (align === "left") {
             let leftOverflow = positionLeft();
 
             if (leftOverflow > 0) {
@@ -576,8 +672,7 @@ export class XPopoverElement extends HTMLElement {
               if (rightOverflow > 0) {
                 if (rightOverflow > leftOverflow) {
                   positionLeft(true);
-                }
-                else {
+                } else {
                   positionRight(true);
                 }
               }
@@ -595,8 +690,7 @@ export class XPopoverElement extends HTMLElement {
             if (topOverflow > 0) {
               floatBottom(true);
             }
-          }
-          else if (topOverflow > 0) {
+          } else if (topOverflow > 0) {
             bottomOverflow = floatTop();
 
             if (bottomOverflow > 0) {
@@ -611,7 +705,9 @@ export class XPopoverElement extends HTMLElement {
   _updateStyle() {
     // Make the arrow look consistentaly with the popover
     {
-      let {backgroundColor, borderColor, borderWidth} = getComputedStyle(this);
+      let { backgroundColor, borderColor, borderWidth } = getComputedStyle(
+        this
+      );
 
       this["#arrow-path"].style.fill = backgroundColor;
       this["#arrow-path"].style.stroke = borderColor;

@@ -1,13 +1,12 @@
-
 // @doc
 //   http://w3c.github.io/aria/aria/aria.html#menuitem
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html, createElement} from "../utils/element.js";
-import {sleep} from "../utils/time.js";
+import { html, createElement } from "../utils/element.js";
+import { sleep } from "../utils/time.js";
 
-let {max} = Math;
+let { max } = Math;
 let easing = "cubic-bezier(0.4, 0, 0.2, 1)";
 let $oldTabIndex = Symbol();
 
@@ -25,7 +24,9 @@ let shadowTemplate = html`
         --trigger-effect: ripple; /* ripple, blink, none */
         --ripple-background: currentColor;
         --ripple-opacity: 0.1;
-        --checkmark-d: path("M 37.5 65 L 21 48.9 L 15.7 54.35 L 37.5 76.1 L 84.3 29.3 L 78.8 23.8 Z");
+        --checkmark-d: path(
+          "M 37.5 65 L 21 48.9 L 15.7 54.35 L 37.5 76.1 L 84.3 29.3 L 78.8 23.8 Z"
+        );
         --checkmark-width: 24px;
         --checkmark-height: 24px;
         --checkmark-margin: 0 12px 0 0;
@@ -82,7 +83,7 @@ let shadowTemplate = html`
       #checkmark {
         color: inherit;
         display: none;
-        transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         align-self: center;
         width: var(--checkmark-width);
         height: var(--checkmark-height);
@@ -152,7 +153,9 @@ export class XMenuItemElement extends HTMLElement {
   }
   set value(value) {
     if (this.value !== value) {
-      value === null ? this.removeAttribute("value") : this.setAttribute("value", value);
+      value === null
+        ? this.removeAttribute("value")
+        : this.setAttribute("value", value);
     }
   }
 
@@ -165,7 +168,9 @@ export class XMenuItemElement extends HTMLElement {
     return this.hasAttribute("toggled");
   }
   set toggled(toggled) {
-    toggled ? this.setAttribute("toggled", "") : this.removeAttribute("toggled");
+    toggled
+      ? this.setAttribute("toggled", "")
+      : this.removeAttribute("toggled");
   }
 
   // @type
@@ -177,7 +182,9 @@ export class XMenuItemElement extends HTMLElement {
     return this.hasAttribute("togglable");
   }
   set togglable(togglable) {
-    togglable ? this.setAttribute("togglable", "") : this.removeAttribute("togglable");
+    togglable
+      ? this.setAttribute("togglable", "")
+      : this.removeAttribute("togglable");
   }
 
   // @type
@@ -189,7 +196,9 @@ export class XMenuItemElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   // @info
@@ -198,10 +207,12 @@ export class XMenuItemElement extends HTMLElement {
   //   Promise
   get whenTriggerEnd() {
     return new Promise((resolve) => {
-      if (this["#ripples"].childElementCount === 0 && this._blinking === false) {
+      if (
+        this["#ripples"].childElementCount === 0 &&
+        this._blinking === false
+      ) {
         resolve();
-      }
-      else {
+      } else {
         this._triggerEndCallbacks.push(resolve);
       }
     });
@@ -212,12 +223,14 @@ export class XMenuItemElement extends HTMLElement {
   constructor() {
     super();
 
-    this._observer = new MutationObserver(() => this._updateArrowIconVisibility());
+    this._observer = new MutationObserver(() =>
+      this._updateArrowIconVisibility()
+    );
 
     this._blinking = false;
     this._triggerEndCallbacks = [];
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mode: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     this.addEventListener("pointerdown", (event) => this._onPointerDown(event));
@@ -230,7 +243,12 @@ export class XMenuItemElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this._observer.observe(this, {childList: true, attributes: false, characterData: false, subtree: false});
+    this._observer.observe(this, {
+      childList: true,
+      attributes: false,
+      characterData: false,
+      subtree: false,
+    });
     this._updateArrowIconVisibility();
     this._updateAccessabilityAttributes();
   }
@@ -250,8 +268,7 @@ export class XMenuItemElement extends HTMLElement {
   _updateArrowIconVisibility() {
     if (this.parentElement.localName === "x-menubar") {
       this["#arrow-icon"].hidden = true;
-    }
-    else {
+    } else {
       let menu = this.querySelector("x-menu");
       this["#arrow-icon"].hidden = menu ? false : true;
     }
@@ -262,12 +279,11 @@ export class XMenuItemElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -299,24 +315,31 @@ export class XMenuItemElement extends HTMLElement {
 
     // Trigger effect
     {
-      let triggerEffect = getComputedStyle(this).getPropertyValue("--trigger-effect").trim();
+      let triggerEffect = getComputedStyle(this)
+        .getPropertyValue("--trigger-effect")
+        .trim();
 
       if (triggerEffect === "ripple") {
         let rect = this["#ripples"].getBoundingClientRect();
         let size = max(rect.width, rect.height) * 1.5;
-        let top  = pointerDownEvent.clientY - rect.y - size/2;
-        let left = pointerDownEvent.clientX - rect.x - size/2;
-        let whenLostPointerCapture = new Promise((r) => this.addEventListener("lostpointercapture", r, {once: true}));
+        let top = pointerDownEvent.clientY - rect.y - size / 2;
+        let left = pointerDownEvent.clientX - rect.x - size / 2;
+        let whenLostPointerCapture = new Promise((r) =>
+          this.addEventListener("lostpointercapture", r, { once: true })
+        );
 
         let ripple = createElement("div");
         ripple.setAttribute("class", "ripple pointer-down-ripple");
-        ripple.setAttribute("style", `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`);
+        ripple.setAttribute(
+          "style",
+          `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`
+        );
         this["#ripples"].append(ripple);
 
         this.setPointerCapture(pointerDownEvent.pointerId);
 
         let inAnimation = ripple.animate(
-          { transform: ["scale3d(0, 0, 0)", "none"]},
+          { transform: ["scale3d(0, 0, 0)", "none"] },
           { duration: 300, easing }
         );
 
@@ -324,7 +347,7 @@ export class XMenuItemElement extends HTMLElement {
         await inAnimation.finished;
 
         let outAnimation = ripple.animate(
-          { opacity: [getComputedStyle(ripple).opacity, "0"]},
+          { opacity: [getComputedStyle(ripple).opacity, "0"] },
           { duration: 300, easing }
         );
 
@@ -351,7 +374,10 @@ export class XMenuItemElement extends HTMLElement {
     }
 
     if (this.togglable) {
-      let event = new CustomEvent("toggle", {bubbles: true, cancelable: true});
+      let event = new CustomEvent("toggle", {
+        bubbles: true,
+        cancelable: true,
+      });
       this.dispatchEvent(event);
 
       if (event.defaultPrevented === false) {
@@ -361,22 +387,27 @@ export class XMenuItemElement extends HTMLElement {
 
     // Trigger effect
     if (!this.querySelector(":scope > x-menu")) {
-      let triggerEffect = getComputedStyle(this).getPropertyValue("--trigger-effect").trim();
+      let triggerEffect = getComputedStyle(this)
+        .getPropertyValue("--trigger-effect")
+        .trim();
 
       if (triggerEffect === "ripple") {
         if (this["#ripples"].querySelector(".pointer-down-ripple") === null) {
           let rect = this["#ripples"].getBoundingClientRect();
           let size = max(rect.width, rect.height) * 1.5;
-          let top  = (rect.y + rect.height/2) - rect.y - size/2;
-          let left = (rect.x + rect.width/2) - rect.x - size/2;
+          let top = rect.y + rect.height / 2 - rect.y - size / 2;
+          let left = rect.x + rect.width / 2 - rect.x - size / 2;
 
           let ripple = createElement("div");
           ripple.setAttribute("class", "ripple click-ripple");
-          ripple.setAttribute("style", `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`);
+          ripple.setAttribute(
+            "style",
+            `width: ${size}px; height: ${size}px; top: ${top}px; left: ${left}px;`
+          );
           this["#ripples"].append(ripple);
 
           let inAnimation = ripple.animate(
-            { transform: ["scale3d(0, 0, 0)", "none"]},
+            { transform: ["scale3d(0, 0, 0)", "none"] },
             { duration: 300, easing }
           );
 
@@ -397,9 +428,7 @@ export class XMenuItemElement extends HTMLElement {
             }
           }
         }
-      }
-
-      else if (triggerEffect === "blink") {
+      } else if (triggerEffect === "blink") {
         this._blinking = true;
 
         if (this._wasFocused) {
@@ -407,8 +436,7 @@ export class XMenuItemElement extends HTMLElement {
           await sleep(150);
           this.focus();
           await sleep(150);
-        }
-        else {
+        } else {
           this.focus();
           await sleep(150);
           this.parentElement.focus();

@@ -1,8 +1,7 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
 let shadowTemplate = html`
   <template>
@@ -33,7 +32,9 @@ export class XBackdropElement extends HTMLElement {
   // @type
   //   HTMLElement
   get ownerElement() {
-    return this._ownerElement ? this._ownerElement : document.body.firstElementChild;
+    return this._ownerElement
+      ? this._ownerElement
+      : document.body.firstElementChild;
   }
   set ownerElement(ownerElement) {
     this._ownerElement = ownerElement;
@@ -45,7 +46,7 @@ export class XBackdropElement extends HTMLElement {
     super();
 
     this._ownerElement = null;
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mode: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     this.addEventListener("wheel", (event) => event.preventDefault());
@@ -80,18 +81,18 @@ export class XBackdropElement extends HTMLElement {
       this.style.zIndex = zIndex - 1;
     }
 
-    this.style.top = (extraTop) + "px";
-    this.style.left = (extraLeft) + "px";
+    this.style.top = extraTop + "px";
+    this.style.left = extraLeft + "px";
 
     // Animate the backdrop
     if (animate) {
       let backdropAnimation = this.animate(
         {
-          opacity: ["0", "1"]
+          opacity: ["0", "1"],
         },
         {
           duration: 100,
-          easing: "ease-out"
+          easing: "ease-out",
         }
       );
 
@@ -103,11 +104,11 @@ export class XBackdropElement extends HTMLElement {
     if (animate) {
       let backdropAnimation = this.animate(
         {
-          opacity: ["1", "0"]
+          opacity: ["1", "0"],
         },
         {
           duration: 100,
-          easing: "ease-in"
+          easing: "ease-in",
         }
       );
 
@@ -116,8 +117,7 @@ export class XBackdropElement extends HTMLElement {
       });
 
       return backdropAnimation.finished;
-    }
-    else {
+    } else {
       this.remove();
     }
   }

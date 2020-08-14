@@ -1,10 +1,9 @@
-
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
-let $oldTabIndex = Symbol()
+let $oldTabIndex = Symbol();
 
 let shadowTemplate = html`
   <template>
@@ -18,7 +17,7 @@ let shadowTemplate = html`
         background: white;
         color: #000000;
         --selection-color: currentColor;
-        --selection-background: #B2D7FD;
+        --selection-background: #b2d7fd;
         --inner-padding: 0;
       }
       :host(:hover) {
@@ -57,7 +56,7 @@ let shadowTemplate = html`
         border-radius: 25px;
       }
       ::-webkit-scrollbar-corner {
-        display: none
+        display: none;
       }
 
       #main {
@@ -99,7 +98,11 @@ let shadowTemplate = html`
 
     <main id="main">
       <slot></slot>
-      <div id="editor" contenteditable="plaintext-only" spellcheck="false"></div>
+      <div
+        id="editor"
+        contenteditable="plaintext-only"
+        spellcheck="false"
+      ></div>
     </main>
   </template>
 `;
@@ -127,8 +130,7 @@ export class XTextareaElement extends HTMLElement {
 
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -146,7 +148,9 @@ export class XTextareaElement extends HTMLElement {
     return this.hasAttribute("spellcheck");
   }
   set spellcheck(spellcheck) {
-    spellcheck ? this.setAttribute("spellcheck", "") : this.removeAttribute("spellcheck");
+    spellcheck
+      ? this.setAttribute("spellcheck", "")
+      : this.removeAttribute("spellcheck");
   }
 
   // @type
@@ -155,7 +159,9 @@ export class XTextareaElement extends HTMLElement {
   //   0
   // @attribute
   get minLength() {
-    return this.hasAttribute("minlength") ? parseInt(this.getAttribute("minlength")) : 0;
+    return this.hasAttribute("minlength")
+      ? parseInt(this.getAttribute("minlength"))
+      : 0;
   }
   set minLength(minLength) {
     this.setAttribute("minlength", minLength);
@@ -167,7 +173,9 @@ export class XTextareaElement extends HTMLElement {
   //   0
   // @attribute
   get maxLength() {
-    return this.hasAttribute("maxlength") ? parseInt(this.getAttribute("maxlength")) : Infinity;
+    return this.hasAttribute("maxlength")
+      ? parseInt(this.getAttribute("maxlength"))
+      : Infinity;
   }
   set maxLength(maxLength) {
     this.setAttribute("maxlength", maxLength);
@@ -182,7 +190,9 @@ export class XTextareaElement extends HTMLElement {
     return this.hasAttribute("required");
   }
   set required(required) {
-    required ? this.setAttribute("required", "") : this.removeAttribute("required");
+    required
+      ? this.setAttribute("required", "")
+      : this.removeAttribute("required");
   }
 
   // @info
@@ -208,7 +218,9 @@ export class XTextareaElement extends HTMLElement {
     return this.hasAttribute("disabled");
   }
   set disabled(disabled) {
-    disabled ? this.setAttribute("disabled", "") : this.removeAttribute("disabled");
+    disabled
+      ? this.setAttribute("disabled", "")
+      : this.removeAttribute("disabled");
   }
 
   // @info
@@ -220,7 +232,9 @@ export class XTextareaElement extends HTMLElement {
   // @default
   //   "auto"
   get validation() {
-    return this.hasAttribute("validation") ? this.getAttribute("validation") : "auto";
+    return this.hasAttribute("validation")
+      ? this.getAttribute("validation")
+      : "auto";
   }
   set validation(validation) {
     this.setAttribute("validation", validation);
@@ -235,7 +249,9 @@ export class XTextareaElement extends HTMLElement {
     return this.getAttribute("error");
   }
   set error(error) {
-    error === null ? this.removeAttribute("error") : this.setAttribute("error", error);
+    error === null
+      ? this.removeAttribute("error")
+      : this.setAttribute("error", error);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +259,10 @@ export class XTextareaElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed", delegatesFocus: true});
+    this._shadowRoot = this.attachShadow({
+      mide: "open",
+      delegatesFocus: true,
+    });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
 
     for (let element of this._shadowRoot.querySelectorAll("[id]")) {
@@ -253,8 +272,12 @@ export class XTextareaElement extends HTMLElement {
     this.addEventListener("focusin", (event) => this._onFocusIn(event));
     this.addEventListener("focusout", (event) => this._onFocusOut(event));
 
-    this["#editor"].addEventListener("click", (event) => this._onEditorClick(event));
-    this["#editor"].addEventListener("input", (event) => this._onEditorInput(event));
+    this["#editor"].addEventListener("click", (event) =>
+      this._onEditorClick(event)
+    );
+    this["#editor"].addEventListener("input", (event) =>
+      this._onEditorInput(event)
+    );
   }
 
   connectedCallback() {
@@ -263,8 +286,7 @@ export class XTextareaElement extends HTMLElement {
 
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -274,14 +296,11 @@ export class XTextareaElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === "value") {
       this._onValueAttributeChange();
-    }
-    else if (name === "spellcheck") {
+    } else if (name === "spellcheck") {
       this._onSpellcheckAttributeChange();
-    }
-    else if (name === "disabled") {
+    } else if (name === "disabled") {
       this._onDisabledAttributeChange();
-    }
-    else if (name === "validation") {
+    } else if (name === "validation") {
       this._onValidationAttributeChnage();
     }
   }
@@ -293,14 +312,11 @@ export class XTextareaElement extends HTMLElement {
   validate() {
     if (this.value.length < this.minLength) {
       this.error = "Entered text is too short";
-    }
-    else if (this.value.length > this.maxLength) {
+    } else if (this.value.length > this.maxLength) {
       this.error = "Entered text is too long";
-    }
-    else if (this.required && this.value.length === 0) {
+    } else if (this.required && this.value.length === 0) {
       this.error = "This field is required";
-    }
-    else {
+    } else {
       this.error = null;
     }
   }
@@ -310,8 +326,7 @@ export class XTextareaElement extends HTMLElement {
   _updateEmptyState() {
     if (this.value.length === 0) {
       this.setAttribute("empty", "");
-    }
-    else {
+    } else {
       this.removeAttribute("empty");
     }
   }
@@ -321,12 +336,11 @@ export class XTextareaElement extends HTMLElement {
     this.setAttribute("aria-disabled", this.disabled);
 
     if (this.disabled) {
-      this[$oldTabIndex] = (this.tabIndex > 0 ? this.tabIndex : 0);
+      this[$oldTabIndex] = this.tabIndex > 0 ? this.tabIndex : 0;
       this.tabIndex = -1;
-    }
-    else {
+    } else {
       if (this.tabIndex < 0) {
-        this.tabIndex = (this[$oldTabIndex] > 0) ? this[$oldTabIndex] : 0;
+        this.tabIndex = this[$oldTabIndex] > 0 ? this[$oldTabIndex] : 0;
       }
 
       delete this[$oldTabIndex];
@@ -355,8 +369,7 @@ export class XTextareaElement extends HTMLElement {
   _onValidationAttributeChnage() {
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto" || this.validation === "manual") {
+    } else if (this.validation === "auto" || this.validation === "manual") {
       if (this.error !== null) {
         this.validate();
       }
@@ -365,20 +378,27 @@ export class XTextareaElement extends HTMLElement {
 
   _onFocusIn() {
     this._focusInValue = this.value;
-    this.dispatchEvent(new CustomEvent("textinputmodestart", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodestart", { bubbles: true, composed: true })
+    );
   }
 
   _onFocusOut() {
-    this.dispatchEvent(new CustomEvent("textinputmodeend", {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent("textinputmodeend", { bubbles: true, composed: true })
+    );
     this._shadowRoot.getSelection().collapse(this["#main"]);
 
     if (this.validation === "auto") {
       this.validate();
     }
 
-    if (this.error === null && (this.value !== this._focusInValue || this.mixed)) {
+    if (
+      this.error === null &&
+      (this.value !== this._focusInValue || this.mixed)
+    ) {
       this.mixed = false;
-      this.dispatchEvent(new CustomEvent("change", {bubbles: true}));
+      this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
     }
   }
 
@@ -389,13 +409,12 @@ export class XTextareaElement extends HTMLElement {
   }
 
   _onEditorInput(event) {
-    this.dispatchEvent(new CustomEvent("input", {bubbles: true}));
+    this.dispatchEvent(new CustomEvent("input", { bubbles: true }));
     this._updateEmptyState();
 
     if (this.validation === "instant") {
       this.validate();
-    }
-    else if (this.validation === "auto") {
+    } else if (this.validation === "auto") {
       if (this.error !== null) {
         this.validate();
       }

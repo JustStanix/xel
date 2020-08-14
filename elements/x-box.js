@@ -1,10 +1,9 @@
-
 // @info
 //   Same as <div>, but have default stylings suitable for flexbox container.
 // @copyright
 //   © 2016-2017 Jarosław Foksa
 
-import {html} from "../utils/element.js";
+import { html } from "../utils/element.js";
 
 let shadowTemplate = html`
   <template>
@@ -40,7 +39,9 @@ export class XBoxElement extends HTMLElement {
     return this.hasAttribute("vertical");
   }
   set vertical(vertical) {
-    vertical ? this.setAttribute("vertical", "") : this.removeAttribute("vertical");
+    vertical
+      ? this.setAttribute("vertical", "")
+      : this.removeAttribute("vertical");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,7 @@ export class XBoxElement extends HTMLElement {
   constructor() {
     super();
 
-    this._shadowRoot = this.attachShadow({mode: "closed"});
+    this._shadowRoot = this.attachShadow({ mode: "open" });
     this._shadowRoot.append(document.importNode(shadowTemplate.content, true));
   }
 }
