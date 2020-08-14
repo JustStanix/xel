@@ -547,8 +547,6 @@ export class XButtonElement extends HTMLElement {
     let openedDialog = this.querySelector(":scope > dialog[open]");
     let openedNotification = this.querySelector(":scope > x-notification[opened]");
 
-    this._lastPointerDownEvent = event;
-
     if (event.target === this["#backdrop"]) {
       this._onBackdropPointerDown(event);
     }
@@ -621,21 +619,17 @@ export class XButtonElement extends HTMLElement {
 
     // Don't focus the widget with pointer, instead focus the closest ancestor focusable element as soon as
     // the button is released.
-    {
-      pointerDownEvent.preventDefault();
+    if (this.matches(":focus") === false) {
+      let ancestorFocusableElement = closest(this.parentNode, "*[tabindex]:not(a)");
 
-      if (this.matches(":focus") === false) {
-        let ancestorFocusableElement = closest(this.parentNode, "*[tabindex]:not(a)");
-
-        this.addEventListener("lostpointercapture", () => {
-          if (ancestorFocusableElement) {
-            ancestorFocusableElement.focus();
-          }
-          else {
-            this.blur();
-          }
-        }, {once: true});
-      }
+      this.addEventListener("lostpointercapture", () => {
+        if (ancestorFocusableElement) {
+          ancestorFocusableElement.focus();
+        }
+        else {
+          this.blur();
+        }
+      }, {once: true});
     }
 
     // Provide "pressed" attribute for theming purposes which acts like :active pseudo-class, but is guaranteed
@@ -644,10 +638,10 @@ export class XButtonElement extends HTMLElement {
       let pointerDownTimeStamp = Date.now();
       let isDown = true;
 
-      this.addEventListener("lostpointercapture", async () => {
+      window.addEventListener("pointerup", async () => {
         isDown = false;
         let pressedTime = Date.now() - pointerDownTimeStamp;
-        let minPressedTime = (pointerDownEvent.pointerType === "touch") ? 600 : 150;
+        let minPressedTime = 150;
 
         if (pressedTime < minPressedTime) {
           await sleep(minPressedTime - pressedTime);
@@ -684,14 +678,10 @@ export class XButtonElement extends HTMLElement {
     }
 
     if (this._canOpenMenu()) {
-      if (pointerDownEvent.pointerType !== "touch") {
-        this._openMenu();
-      }
+      this._openMenu();
     }
     else if (this._canOpenPopover()) {
-      if (pointerDownEvent.pointerType !== "touch") {
-        this._openPopover();
-      }
+      this._openPopover();
     }
     else if (this._canClosePopover()) {
       this._closePopover();
@@ -816,15 +806,6 @@ export class XButtonElement extends HTMLElement {
       }
       else if (this._canOpenNotification()) {
         this._openNotification();
-      }
-    }
-
-    if (this._lastPointerDownEvent && this._lastPointerDownEvent.pointerType === "touch") {
-      if (this._canOpenMenu()) {
-        this._openMenu();
-      }
-      else if (this._canOpenPopover()) {
-        this._openPopover();
       }
     }
 
